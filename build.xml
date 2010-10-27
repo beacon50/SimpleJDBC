@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="simplejDBc" default="compile" basedir=".">
+
+    <property file="local.properties"/>
+    <property name="version" value="0.1"/>
+
+
+    <path id="classpath">
+        <fileset dir="./lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+
+    <path id="live.classpath">
+        <fileset dir="./target">
+            <include name="**/simplejdbc-${version}.jar"/>
+        </fileset>
+    </path>
+
+    <taskdef name="easyb" classname="org.easyb.ant.BehaviorRunnerTask" classpathref="classpath"/>
+
+
+    <target name="verify" description="runs easyb behaviors" depends="compile">
+        <mkdir dir="./target"/>
+        <easyb failureproperty="easyb.fail" failureFile="./target/easyb-failures.txt">
+            <classpath>
+                <path refid="classpath"/>
+                <path refid="live.classpath"/>
+            </classpath>
+            <report location="./target/story.txt" format="txtstory"/>
+            <behaviors dir="./behavior">
+                <include name="*.story"/>
+            </behaviors>
+        </easyb>
+        <fail if="easyb.fail" message="easyb verification failed"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="./target"/>
+    </target>
+
+    <target name="compile" description="compiles source code">
+        <mkdir dir="target/classes"/>
+        <javac srcdir="./src" destdir="target/classes" includeAntRuntime="false" source="1.5">
+            <classpath>
+                <path refid="classpath"/>
+            </classpath>
+            <compilerarg value="-Xlint"/>
+        </javac>
+    </target>
+
+    <target name="compile-tests" depends="compile" description="compiles test files only">
+        <mkdir dir="target/test-classes"/>
+        <javac srcdir="./test" destdir="target/test-classes" includeAntRuntime="false" source="1.5">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement path="target/classes"/>
+            </classpath>
+        </javac>
+    </target>
+
+
+    <target name="test" depends="compile-tests,jar">
+        <junit fork="true" forkmode="once" haltonfailure="false" haltonerror="false" failureproperty="tests.failures"
+               errorproperty="tests.errors" includeantruntime="true" showoutput="true" printsummary="true">
+            <classpath>
+                <path refid="classpath"/>
+                <path refid="live.classpath"/>
+                <pathelement path="target/test-classes"/>
+            </classpath>
+
+            <formatter type="xml"/>
+
+            <sysproperty key="secretKey" value="${amazon.secretKey}"/>
+            <sysproperty key="accessKey" value="${amazon.accessKey}"/>
+
+            <batchtest fork="yes"
+                       todir="./target/">
+                <fileset dir="./test">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+
+    </target>
+
+    <target name="jar" depends="compile" description="creates a jar file">
+        <jar basedir="target/classes" jarfile="target/simplejdbc-${version}.jar">
+            <metainf dir="conf/META-INF" includes="**"/>
+        </jar>
+    </target>
+
+</project>
