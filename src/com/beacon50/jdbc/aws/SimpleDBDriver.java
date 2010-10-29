@@ -28,7 +28,7 @@ public class SimpleDBDriver implements Driver {
             if (!url.startsWith("jdbc:simpledb")) {
                 throw new SQLException("incorrect url");
             }
-            return new SimpleDBConnection(info.getProperty("secretKey"), info.getProperty("accessKey"));
+            return new SimpleDBConnection(info.getProperty("accessKey"), info.getProperty("secretKey"));
         } catch (Exception e) {
             throw new SQLException("unable to connect");
         }

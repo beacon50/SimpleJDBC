@@ -32,10 +32,37 @@ public class SimpleDBResultSet extends AbstractResultSet {
         }
     }
 
-    public String getString(int columnIndex) throws SQLException {
+
+    public int getInt(int index) throws SQLException {
+        checkPosition();
+
+        Item item = items.get(currentPos);
+        List<Attribute> attributes = item.getAttributes();
+        Attribute attribute = attributes.get(index);
+        return Integer.parseInt(attribute.getValue());
+    }
+
+    private void checkPosition() throws SQLException {
         if (currentPos < 0) {
             throw new SQLException("you must call next() on a ResultSet first!");
         }
+    }
+
+    public int getInt(String label) throws SQLException {
+        checkPosition();
+
+        Item item = items.get(currentPos);
+        List<Attribute> attributes = item.getAttributes();
+        for (Attribute attribute : attributes) {
+            if (attribute.getName().equals(label)) {
+                return Integer.valueOf(attribute.getValue());
+            }
+        }
+        throw new SQLException("attribute name " + label + " doesn't exist!");
+    }
+
+    public String getString(int columnIndex) throws SQLException {
+        checkPosition();
 
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
@@ -44,9 +71,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
     }
 
     public String getString(String columnLabel) throws SQLException {
-        if (currentPos < 0) {
-            throw new SQLException("you must call next() on a ResultSet first!");
-        }
+        checkPosition();
 
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();

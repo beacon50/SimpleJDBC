@@ -40,9 +40,7 @@ public abstract class AbstractResultSet implements ResultSet {
         return 0;
     }
 
-    public int getInt(int i) throws SQLException {
-        return 0;
-    }
+  
 
     public long getLong(int i) throws SQLException {
         return 0;
@@ -105,9 +103,6 @@ public abstract class AbstractResultSet implements ResultSet {
         return 0;
     }
 
-    public int getInt(String s) throws SQLException {
-        return 0;
-    }
 
     public long getLong(String s) throws SQLException {
         return 0;

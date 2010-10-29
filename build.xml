@@ -61,7 +61,7 @@
     </target>
 
 
-    <target name="test" depends="compile-tests,jar">
+    <target name="test" depends="compile-tests,jar" description="runs JUnit tests">
         <junit fork="true" forkmode="once" haltonfailure="false" haltonerror="false" failureproperty="tests.failures"
                errorproperty="tests.errors" includeantruntime="true" showoutput="true" printsummary="true">
             <classpath>
@@ -74,7 +74,7 @@
 
             <sysproperty key="secretKey" value="${amazon.secretKey}"/>
             <sysproperty key="accessKey" value="${amazon.accessKey}"/>
-
+            
             <batchtest fork="yes"
                        todir="./target/">
                 <fileset dir="./test">
