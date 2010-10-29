@@ -5,4 +5,3 @@ INSERT statements:
   * Thus, "INSERT INTO Races (Name, Distance) VALUES ('Richmond Marathon', 26.2)" is a valid insert statement
     that will create a domain named Races with an item having a unique id attribute (item name) and two attributes:
     Name and Distance with values
-  * TODO: numeric values ARE NOT ENCODED YET
