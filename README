@@ -21,7 +21,9 @@ INSERT statements:
   * Numeric values are encoded 
 
 DELETE statements
-  * Deletes only support comparing values by equals (=); that is, the statement "DELETE from Races where Name = 'Richmond Marathon'" works but "DELETE from Races where distance > 13.1" would not (yet)
+  * Deletes only support comparing values by equals (=); that is, the
+    statement "DELETE from Races where Name = 'Richmond Marathon'" works
+    but "DELETE from Races where distance > 13.1" would not (yet)
 
 UPDATE statements
   * Numeric values are encoded
