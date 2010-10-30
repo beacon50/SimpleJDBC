@@ -60,6 +60,9 @@
         </javac>
     </target>
 
+    <target name="echo">
+        <echo message="${basedir}"/>
+    </target>
 
     <target name="test" depends="compile-tests,jar" description="runs JUnit tests">
         <junit fork="true" forkmode="once" haltonfailure="false" haltonerror="false" failureproperty="tests.failures"
@@ -74,7 +77,9 @@
 
             <sysproperty key="secretKey" value="${amazon.secretKey}"/>
             <sysproperty key="accessKey" value="${amazon.accessKey}"/>
-            
+
+            <!-- <sysproperty key="log4j.configuration" value="file://${basedir}/log4j.properties"/> -->            
+
             <batchtest fork="yes"
                        todir="./target/">
                 <fileset dir="./test">
@@ -86,6 +91,7 @@
     </target>
 
     <target name="jar" depends="compile" description="creates a jar file">
+        <copy file="./log4j.properties" todir="target/classes"/>
         <jar basedir="target/classes" jarfile="target/simplejdbc-${version}.jar">
             <metainf dir="conf/META-INF" includes="**"/>
         </jar>

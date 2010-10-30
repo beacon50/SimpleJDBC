@@ -30,3 +30,10 @@ UPDATE statements
 
 SELECT statements
   * Numeric values are encoded and decoded
+
+
+TODO:
+  * add logging (Amazon's SDK uses log4j, so plug into that)
+  * make dates/timestamps work
+  * add prepared statements (the format is common with tools even though the
+    actual notion of precompiled queries doesn't apply with SimpleDB)
