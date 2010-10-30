@@ -19,16 +19,21 @@ import java.util.Properties;
 import static org.junit.Assert.*;
 
 /**
+ *  This test case inserts via SimpleJDBC and then
+ *  attempts to locate and verify the correct object
+ *  via Amazon's API.
  *
+ *  NOTE: this test case demonstrates the auto-creation
+ *  of domains -- that is, the users domain doesn't
+ *  exist before the test is run (and it is deleted after). 
  */
 public class JDBCInsertsTest {
 
     @BeforeClass
     public static void initialize() throws Exception {
-        //insert data
         Connection conn = getConnection();
         Statement st = conn.createStatement();
-        String insert = "INSERT INTO users (name, age) VALUES ('Joe Smith', 33)";
+        String insert = "INSERT INTO users (name, age) VALUES ('Ann Smith', 33)";
         int val = st.executeUpdate(insert);
         assertEquals("val should be 1", 1, val);
         Thread.sleep(2000);
@@ -40,7 +45,7 @@ public class JDBCInsertsTest {
                 new BasicAWSCredentials(System.getProperty("accessKey"),
                         System.getProperty("secretKey")));
 
-        String qry = "select * from `users` where name = 'Joe Smith'";
+        String qry = "select * from `users` where name = 'Ann Smith'";
         SelectRequest selectRequest = new SelectRequest(qry);
         boolean itemFound = false;
         for (Item item : sdb.select(selectRequest).getItems()) {
@@ -50,7 +55,7 @@ public class JDBCInsertsTest {
             List<Attribute> attrs = item.getAttributes();
             for (Attribute attr : attrs) {
                 if (attr.getName().equals("name")) {
-                    assertEquals("name wasn't Joe Smith", "Joe Smith", attr.getValue());
+                    assertEquals("name wasn't Ann Smith", "Ann Smith", attr.getValue());
                 } else {
                     assertEquals("name wasn't 00033", "00033", attr.getValue());
                 }
