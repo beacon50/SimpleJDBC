@@ -11,7 +11,7 @@ SimpleDB doesn't support the notion of cross-domain joins, so you can't query fo
 
 Searching in SimpleDB is different: data comparisons are done lexicographically. Lexicographic searching can cause issues when looking for numbered data (including dates), but all is not lost. One way to fix the searching-on-distance issue is by padding numeric data (which this driver attempts to facilitate).
 
-What SimpleJDBC supports: 
+What SimpleJDBC supports:
 
 INSERT statements:
   * create a domain (i.e. table) if not already in existence
@@ -21,9 +21,10 @@ INSERT statements:
   * Numeric values are encoded 
 
 DELETE statements
+  * Deletes only support comparing values by equals (=); that is, the statement "DELETE from Races where Name = 'Richmond Marathon'" works but "DELETE from Races where distance > 13.1" would not (yet)
 
 UPDATE statements
-   * Numeric values are encoded
+  * Numeric values are encoded
 
 SELECT statements
-   * Numeric values are encoded and decoded 
+  * Numeric values are encoded and decoded
