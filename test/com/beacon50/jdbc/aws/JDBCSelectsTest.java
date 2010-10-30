@@ -20,7 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
+ *  Test case inserts a new user object via
+ *  Amazon's API, then attempts to select
+ *  the data via SimpleJDBC. Lastly, the test case
+ *  removes the user record via Amazon's API.
+ * 
  */
 public class JDBCSelectsTest {
 

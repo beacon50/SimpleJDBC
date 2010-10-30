@@ -175,7 +175,7 @@ public class SimpleDBStatement extends AbstractStatement {
 
             SQLExpressionVisitor vistor = new SQLExpressionVisitor();
             String expressionVal = vistor.getValue((Expression)list.get(count));
-            System.out.println("value is " + expressionVal);
+            //System.out.println("value is " + expressionVal);
             
 //            String expressionVal = list.get(count).toString();
 //            if (new Character(expressionVal.charAt(0)).toString().equals("'")) { //character is a String
