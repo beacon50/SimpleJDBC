@@ -56,9 +56,9 @@ public abstract class AbstractStatement implements Statement {
         
     }
 
-    public boolean execute(String s) throws SQLException {
-        return false;  
-    }
+//    public boolean execute(String s) throws SQLException {
+//        return false;
+//    }
 
     public ResultSet getResultSet() throws SQLException {
         return null;  
@@ -108,9 +108,6 @@ public abstract class AbstractStatement implements Statement {
         return new int[0];  
     }
 
-    public Connection getConnection() throws SQLException {
-        return null;  
-    }
 
     public boolean getMoreResults(int i) throws SQLException {
         return false;  

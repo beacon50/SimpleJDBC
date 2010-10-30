@@ -78,7 +78,7 @@
             <sysproperty key="secretKey" value="${amazon.secretKey}"/>
             <sysproperty key="accessKey" value="${amazon.accessKey}"/>
 
-            <!-- <sysproperty key="log4j.configuration" value="file://${basedir}/log4j.properties"/> -->            
+            <!-- <sysproperty key="log4j.configuration" value="file://${basedir}/log4j.properties"/> -->
 
             <batchtest fork="yes"
                        todir="./target/">
@@ -87,6 +87,15 @@
                 </fileset>
             </batchtest>
         </junit>
+
+        <mkdir dir="./target/reports"/>
+
+        <junitreport todir="./target/reports">
+            <fileset dir="./target">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="./target/reports/html"/>
+        </junitreport>
 
     </target>
 

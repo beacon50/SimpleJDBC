@@ -37,6 +37,41 @@ public class SimpleDBStatement extends AbstractStatement {
         this.parserManager = new CCJSqlParserManager();
     }
 
+
+    public boolean execute(String sql) throws SQLException {
+        try {
+
+            //return false;
+
+            if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
+                return (handleInsert(sql) > 0) ? true : false;
+            } else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
+                return (handleDelete(sql) > 0) ? true : false;
+            } else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
+                return (handleUpdate(sql) > 0) ? true : false;
+            } else {
+                return false;
+            }
+
+
+            //else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
+//                return handleDelete(sql);
+//            } else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
+//                return handleUpdate(sql);
+//            } else if (StringUtils.startsWithIgnoreCase(sql, "SELECT")) {
+//                return executeQuery(sql);
+//            } else {
+//                throw new SQLException("statement type " + sql + " not implemented yet");
+//            }
+        } catch (JSQLParserException e1) {
+            throw new SQLException("SQL statement was malformed");
+        }
+    }
+
+    public Connection getConnection() throws SQLException {
+        return this.connection;
+    }
+
     public ResultSet executeQuery(String sql) throws SQLException {
         try {
             Select select = (Select) this.parserManager.parse(new StringReader(sql));
@@ -158,9 +193,9 @@ public class SimpleDBStatement extends AbstractStatement {
         Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
         String domain = insert.getTable().getName();
 
-        try{
-        this.connection.getSimpleDB().createDomain(new CreateDomainRequest(domain));
-        }catch(Exception e){
+        try {
+            this.connection.getSimpleDB().createDomain(new CreateDomainRequest(domain));
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -174,9 +209,9 @@ public class SimpleDBStatement extends AbstractStatement {
         for (Column column : columns) {
 
             SQLExpressionVisitor vistor = new SQLExpressionVisitor();
-            String expressionVal = vistor.getValue((Expression)list.get(count));
+            String expressionVal = vistor.getValue((Expression) list.get(count));
             //System.out.println("value is " + expressionVal);
-            
+
 //            String expressionVal = list.get(count).toString();
 //            if (new Character(expressionVal.charAt(0)).toString().equals("'")) { //character is a String
 //                expressionVal = expressionVal.substring(1, (expressionVal.length() - 1));

@@ -4,8 +4,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.*;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -22,8 +22,19 @@ import static org.junit.Assert.fail;
  *
  */
 public class JDBCUpdatesTest {
-    private static AmazonSimpleDB sdb;
+
     private static String domain;
+
+
+    @Test
+    public void testExecuteUpdate() throws Exception {
+        Connection conn = getConnection();
+        Statement st = conn.createStatement();
+        String update = "UPDATE users SET age = 45 where name = 'Joe Smith'";
+        boolean val = st.execute(update);
+        assertEquals("val should be true", true, val);
+        Thread.sleep(2000);
+    }
 
 
     @Test
@@ -36,9 +47,9 @@ public class JDBCUpdatesTest {
         Thread.sleep(2000);
     }
 
-    @BeforeClass
-    public static void initialize() throws Exception {
-        sdb = new AmazonSimpleDBClient(
+    @Before
+    public void initialize() throws Exception {
+        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
                 new BasicAWSCredentials(System.getProperty("accessKey"),
                         System.getProperty("secretKey")));
         domain = "users";
@@ -63,8 +74,11 @@ public class JDBCUpdatesTest {
         return DriverManager.getConnection("jdbc:simpledb://sdb.amazonaws.com", prop);
     }
 
-    @AfterClass
-    public static void deInitialize() throws Exception {
+    @After
+    public void deInitialize() throws Exception {
+        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
+                new BasicAWSCredentials(System.getProperty("accessKey"),
+                        System.getProperty("secretKey")));
         Thread.sleep(2000);
         String qry = "select * from `users` where name = 'Joe Smith'";
         SelectRequest selectRequest = new SelectRequest(qry);
@@ -85,9 +99,7 @@ public class JDBCUpdatesTest {
             fail("item wasn't found?");
         }
 
-
         sdb.deleteAttributes(new DeleteAttributesRequest(domain, "user_01"));
         sdb.deleteDomain(new DeleteDomainRequest(domain));
-
     }
 }

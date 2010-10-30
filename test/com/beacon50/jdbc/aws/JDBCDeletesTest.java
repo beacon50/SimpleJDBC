@@ -1,12 +1,9 @@
 package com.beacon50.jdbc.aws;
 
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.*;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,8 +19,9 @@ import static org.junit.Assert.fail;
  *
  */
 public class JDBCDeletesTest {
-    private static AmazonSimpleDB sdb;
-    private static String domain;
+    //private static AmazonSimpleDB sdb;
+    //private static String domain;
+    private String domain = "users";
 
     @Test
     public void deleteTest() throws Exception {
@@ -35,8 +33,22 @@ public class JDBCDeletesTest {
 
     }
 
-    @AfterClass
-    public static void deInitialize() throws Exception {
+    @Test
+    public void deleteExecuteTest() throws Exception {
+        String qry = "delete from users where name = 'Martha Smith'";
+        Connection conn = getConnection();
+        Statement st = conn.createStatement();
+        boolean val = st.execute(qry);
+        assertEquals("should have removed one value", true, val);
+
+    }
+
+
+    @After
+    public void deInitialize() throws Exception {
+        AmazonSimpleDBClient sdb = new AmazonSimpleDBClient(
+                new BasicAWSCredentials(System.getProperty("accessKey"),
+                        System.getProperty("secretKey")));
         Thread.sleep(2000);
         String qry = "select * from `users` where name = 'Martha Smith'";
         SelectRequest selectRequest = new SelectRequest(qry);
@@ -50,15 +62,16 @@ public class JDBCDeletesTest {
 
         sdb.deleteAttributes(new DeleteAttributesRequest(domain, "user_02"));
         sdb.deleteDomain(new DeleteDomainRequest(domain));
+        Thread.sleep(2000);
     }
 
 
-    @BeforeClass
-    public static void initialize() throws Exception {
-        sdb = new AmazonSimpleDBClient(
+    @Before
+    public void initialize() throws Exception {
+        AmazonSimpleDBClient sdb = new AmazonSimpleDBClient(
                 new BasicAWSCredentials(System.getProperty("accessKey"),
                         System.getProperty("secretKey")));
-        domain = "users";
+
         sdb.createDomain(new CreateDomainRequest(domain));
 
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
