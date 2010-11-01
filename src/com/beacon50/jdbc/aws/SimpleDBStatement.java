@@ -31,6 +31,7 @@ public class SimpleDBStatement extends AbstractStatement {
 
     private SimpleDBConnection connection;
     private CCJSqlParserManager parserManager;
+    private ResultSet resultSet;
 
     protected SimpleDBStatement(Connection conn) {
         this.connection = (SimpleDBConnection) conn;
@@ -40,32 +41,25 @@ public class SimpleDBStatement extends AbstractStatement {
 
     public boolean execute(String sql) throws SQLException {
         try {
-
-            //return false;
-
             if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
                 return (handleInsert(sql) > 0) ? true : false;
             } else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
                 return (handleDelete(sql) > 0) ? true : false;
             } else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
                 return (handleUpdate(sql) > 0) ? true : false;
+            } else if (StringUtils.startsWithIgnoreCase(sql, "SELECT")) {
+                this.resultSet = this.executeQuery(sql);
+                return (this.resultSet != null) ? true : false;
             } else {
                 return false;
             }
-
-
-            //else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
-//                return handleDelete(sql);
-//            } else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
-//                return handleUpdate(sql);
-//            } else if (StringUtils.startsWithIgnoreCase(sql, "SELECT")) {
-//                return executeQuery(sql);
-//            } else {
-//                throw new SQLException("statement type " + sql + " not implemented yet");
-//            }
         } catch (JSQLParserException e1) {
             throw new SQLException("SQL statement was malformed");
         }
+    }
+
+    public ResultSet getResultSet() throws SQLException {
+        return this.resultSet;
     }
 
     public Connection getConnection() throws SQLException {

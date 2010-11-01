@@ -4,8 +4,9 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.*;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -17,20 +18,18 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- *  Test case inserts a new user object via
- *  Amazon's API, then attempts to select
- *  the data via SimpleJDBC. Lastly, the test case
- *  removes the user record via Amazon's API.
- * 
+ * Test case inserts a new user object via
+ * Amazon's API, then attempts to select
+ * the data via SimpleJDBC. Lastly, the test case
+ * removes the user record via Amazon's API.
  */
 public class JDBCSelectsTest {
 
-    private static AmazonSimpleDB sdb;
     private static String domain;
-
 
     @Test
     public void testSelect() throws Exception {
@@ -50,7 +49,32 @@ public class JDBCSelectsTest {
             wasFound = true;
         }
         assertTrue("age wasn't found for inserted object", wasFound);
+    }
 
+    @Test
+    public void testSelectExecute() throws Exception {
+        String qry = "select * from users where name = 'Joe Smith'";
+        Connection conn = this.getConnection();
+        Statement st = conn.createStatement();
+        boolean val = st.execute(qry);
+
+        assertTrue("nothing was retrieved", val);
+
+        ResultSet rs = st.getResultSet();
+
+        assertNotNull("result set was null!", rs);
+
+        boolean wasFound = false;
+        while (rs.next()) {
+            String age = rs.getString("age");
+            assertEquals("age wasn't 34!", "34", age);
+
+            int iage = rs.getInt("age");
+            assertEquals("age wasn't 34!", 34, iage);
+
+            wasFound = true;
+        }
+        assertTrue("age wasn't found for inserted object", wasFound);
     }
 
     public Connection getConnection() throws Exception {
@@ -62,9 +86,9 @@ public class JDBCSelectsTest {
         return DriverManager.getConnection("jdbc:simpledb://sdb.amazonaws.com", prop);
     }
 
-    @BeforeClass
-    public static void initialize() throws Exception {
-        sdb = new AmazonSimpleDBClient(
+    @Before
+    public void initialize() throws Exception {
+        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
                 new BasicAWSCredentials(System.getProperty("accessKey"),
                         System.getProperty("secretKey")));
         domain = "users";
@@ -80,11 +104,13 @@ public class JDBCSelectsTest {
         Thread.sleep(2000);
     }
 
-    @AfterClass
-    public static void deInitialize() throws Exception {
+    @After
+    public void deInitialize() throws Exception {
         Thread.sleep(2000);
+        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
+                new BasicAWSCredentials(System.getProperty("accessKey"),
+                        System.getProperty("secretKey")));
         sdb.deleteAttributes(new DeleteAttributesRequest(domain, "user_01"));
         sdb.deleteDomain(new DeleteDomainRequest(domain));
-
     }
 }
