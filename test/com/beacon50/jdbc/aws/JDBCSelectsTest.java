@@ -1,25 +1,27 @@
 package com.beacon50.jdbc.aws;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.simpledb.AmazonSimpleDB;
-import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
-import com.amazonaws.services.simpledb.model.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.amazonaws.services.simpledb.AmazonSimpleDB;
+import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
+import com.amazonaws.services.simpledb.model.CreateDomainRequest;
+import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
+import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
+import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
+import com.amazonaws.services.simpledb.model.ReplaceableItem;
+import com.beacon50.jdbc.aws.util.SimpleJDBCTestHelper;
 
 /**
  * Test case inserts a new user object via
@@ -34,7 +36,7 @@ public class JDBCSelectsTest {
     @Test
     public void testSelect() throws Exception {
         String qry = "select * from users where name = 'Joe Smith'";
-        Connection conn = this.getConnection();
+        Connection conn = SimpleJDBCTestHelper.getConnection();
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(qry);
 
@@ -54,7 +56,7 @@ public class JDBCSelectsTest {
     @Test
     public void testSelectExecute() throws Exception {
         String qry = "select * from users where name = 'Joe Smith'";
-        Connection conn = this.getConnection();
+        Connection conn = SimpleJDBCTestHelper.getConnection();
         Statement st = conn.createStatement();
         boolean val = st.execute(qry);
 
@@ -77,20 +79,11 @@ public class JDBCSelectsTest {
         assertTrue("age wasn't found for inserted object", wasFound);
     }
 
-    public Connection getConnection() throws Exception {
-        Connection con = null;
-        Properties prop = new Properties();
-        prop.setProperty("secretKey", System.getProperty("secretKey"));
-        prop.setProperty("accessKey", System.getProperty("accessKey"));
-        Class.forName("com.beacon50.jdbc.aws.SimpleDBDriver");
-        return DriverManager.getConnection("jdbc:simpledb://sdb.amazonaws.com", prop);
-    }
+    
 
     @Before
     public void initialize() throws Exception {
-        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
-                new BasicAWSCredentials(System.getProperty("accessKey"),
-                        System.getProperty("secretKey")));
+    	AmazonSimpleDB sdb = SimpleJDBCTestHelper.getAmazonSimpleDBClient();
         domain = "users";
         sdb.createDomain(new CreateDomainRequest(domain));
 
@@ -107,9 +100,7 @@ public class JDBCSelectsTest {
     @After
     public void deInitialize() throws Exception {
         Thread.sleep(2000);
-        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
-                new BasicAWSCredentials(System.getProperty("accessKey"),
-                        System.getProperty("secretKey")));
+        AmazonSimpleDB sdb = SimpleJDBCTestHelper.getAmazonSimpleDBClient();
         sdb.deleteAttributes(new DeleteAttributesRequest(domain, "user_01"));
         sdb.deleteDomain(new DeleteDomainRequest(domain));
     }

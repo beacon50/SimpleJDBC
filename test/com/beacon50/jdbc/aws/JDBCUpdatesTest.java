@@ -1,22 +1,28 @@
 package com.beacon50.jdbc.aws;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.simpledb.AmazonSimpleDB;
-import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
-import com.amazonaws.services.simpledb.model.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.amazonaws.services.simpledb.AmazonSimpleDB;
+import com.amazonaws.services.simpledb.model.Attribute;
+import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
+import com.amazonaws.services.simpledb.model.CreateDomainRequest;
+import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
+import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
+import com.amazonaws.services.simpledb.model.ReplaceableItem;
+import com.amazonaws.services.simpledb.model.SelectRequest;
+import com.beacon50.jdbc.aws.util.SimpleJDBCTestHelper;
 
 /**
  *
@@ -28,7 +34,7 @@ public class JDBCUpdatesTest {
 
     @Test
     public void testExecuteUpdate() throws Exception {
-        Connection conn = getConnection();
+        Connection conn = SimpleJDBCTestHelper.getConnection();
         Statement st = conn.createStatement();
         String update = "UPDATE users SET age = 45 where name = 'Joe Smith'";
         boolean val = st.execute(update);
@@ -39,7 +45,7 @@ public class JDBCUpdatesTest {
 
     @Test
     public void testUpdate() throws Exception {
-        Connection conn = getConnection();
+        Connection conn = SimpleJDBCTestHelper.getConnection();
         Statement st = conn.createStatement();
         String update = "UPDATE users SET age = 45 where name = 'Joe Smith'";
         int val = st.executeUpdate(update);
@@ -49,9 +55,7 @@ public class JDBCUpdatesTest {
 
     @Before
     public void initialize() throws Exception {
-        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
-                new BasicAWSCredentials(System.getProperty("accessKey"),
-                        System.getProperty("secretKey")));
+    	AmazonSimpleDB sdb = SimpleJDBCTestHelper.getAmazonSimpleDBClient();
         domain = "users";
         sdb.createDomain(new CreateDomainRequest(domain));
 
@@ -65,20 +69,11 @@ public class JDBCUpdatesTest {
         Thread.sleep(2000);
     }
 
-    public static Connection getConnection() throws Exception {
-        Connection con = null;
-        Properties prop = new Properties();
-        prop.setProperty("secretKey", System.getProperty("secretKey"));
-        prop.setProperty("accessKey", System.getProperty("accessKey"));
-        Class.forName("com.beacon50.jdbc.aws.SimpleDBDriver");
-        return DriverManager.getConnection("jdbc:simpledb://sdb.amazonaws.com", prop);
-    }
+    
 
     @After
     public void deInitialize() throws Exception {
-        AmazonSimpleDB sdb = new AmazonSimpleDBClient(
-                new BasicAWSCredentials(System.getProperty("accessKey"),
-                        System.getProperty("secretKey")));
+    	AmazonSimpleDB sdb = SimpleJDBCTestHelper.getAmazonSimpleDBClient();
         Thread.sleep(2000);
         String qry = "select * from `users` where name = 'Joe Smith'";
         SelectRequest selectRequest = new SelectRequest(qry);

@@ -2,3 +2,6 @@ local.properties
 *.iml
 .idea/
 target/
+bin/
+.classpath
+.project

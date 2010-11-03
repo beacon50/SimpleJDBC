@@ -76,10 +76,12 @@
             <formatter type="xml"/>
 
             <sysproperty key="secretKey" value="${amazon.secretKey}"/>
-            <sysproperty key="accessKey" value="${amazon.accessKey}"/>
-
-            <!-- <sysproperty key="log4j.configuration" value="file://${basedir}/log4j.properties"/> -->
-
+            <sysproperty key="accessKey" value="${amazon.accessKey}"/>        	
+        	<sysproperty key="proxyUsername" value="${amazon.proxyUsername}"/>
+        	<sysproperty key="proxyPassword" value="${amazon.proxyPassword}"/>
+        	<sysproperty key="proxyHost" value="${amazon.proxyHost}"/>
+        	<sysproperty key="proxyPort" value="${amazon.proxyPort}"/>
+        	
             <batchtest fork="yes"
                        todir="./target/">
                 <fileset dir="./test">
