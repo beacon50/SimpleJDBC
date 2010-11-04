@@ -23,23 +23,6 @@ public class SimpleDBConnection extends AbstractConnection {
 		return this.sdb;
 	}
 
-	protected String getDomain() {
-		return this.domain;
-	}
-
-	/**
-	 * 
-	 * @param domain
-	 * @param accessId
-	 * @param accessSecret
-	 */
-	protected SimpleDBConnection(String domain, String accessId,
-			String accessSecret) {
-		this.domain = domain;
-		this.sdb = new AmazonSimpleDBClient(new BasicAWSCredentials(accessId,
-				accessSecret));
-	}
-
 	/**
 	 * 
 	 * @param accessId

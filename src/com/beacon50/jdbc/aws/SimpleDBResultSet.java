@@ -3,6 +3,7 @@ package com.beacon50.jdbc.aws;
 import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.Item;
 
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ListIterator;
@@ -16,10 +17,19 @@ public class SimpleDBResultSet extends AbstractResultSet {
     private ListIterator<Item> iter;
     private int currentPos = -1;
     private Item currentItem;
+    private SimpleDBConnection connection;
+    private String domain;
 
-    protected SimpleDBResultSet(List<Item> items) {
+
+    public ResultSetMetaData getMetaData() throws SQLException {
+        return new SimpleDBResultSetMetaData(this.connection, this.items, this.domain);
+    }
+
+    protected SimpleDBResultSet(SimpleDBConnection connection, List<Item> items, String domain) {
+        this.connection = connection;
         this.items = items;
         this.iter = items.listIterator();
+        this.domain = domain;
     }
 
     public boolean next() throws SQLException {
@@ -32,13 +42,12 @@ public class SimpleDBResultSet extends AbstractResultSet {
         }
     }
 
-
     public int getInt(int index) throws SQLException {
         checkPosition();
 
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
-        Attribute attribute = attributes.get(index);
+        Attribute attribute = attributes.get((index - 1));
         return Integer.parseInt(attribute.getValue());
     }
 
@@ -61,12 +70,22 @@ public class SimpleDBResultSet extends AbstractResultSet {
         throw new SQLException("attribute name " + label + " doesn't exist!");
     }
 
+
+    public Object getObject(int i) throws SQLException {
+        return this.getString(i);
+    }
+
+
+    public Object getObject(String s) throws SQLException {
+        return this.getString(s);
+    }
+
     public String getString(int columnIndex) throws SQLException {
         checkPosition();
 
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
-        Attribute attribute = attributes.get(columnIndex);
+        Attribute attribute = attributes.get((columnIndex - 1));
         return attribute.getValue();
     }
 
@@ -82,6 +101,5 @@ public class SimpleDBResultSet extends AbstractResultSet {
         }
         throw new SQLException("attribute name " + columnLabel + " doesn't exist!");
     }
-
 
 }

@@ -42,7 +42,7 @@
 
     <target name="compile" description="compiles source code">
         <mkdir dir="target/classes"/>
-        <javac srcdir="./src" destdir="target/classes" includeAntRuntime="false" source="1.5">
+        <javac srcdir="./src" destdir="target/classes" includeAntRuntime="false" source="1.5" debug="true">
             <classpath>
                 <path refid="classpath"/>
             </classpath>
@@ -52,7 +52,7 @@
 
     <target name="compile-tests" depends="compile" description="compiles test files only">
         <mkdir dir="target/test-classes"/>
-        <javac srcdir="./test" destdir="target/test-classes" includeAntRuntime="false" source="1.5">
+        <javac srcdir="./test" destdir="target/test-classes" includeAntRuntime="false" source="1.5" debug="true">
             <classpath>
                 <path refid="classpath"/>
                 <pathelement path="target/classes"/>
@@ -76,12 +76,14 @@
             <formatter type="xml"/>
 
             <sysproperty key="secretKey" value="${amazon.secretKey}"/>
-            <sysproperty key="accessKey" value="${amazon.accessKey}"/>        	
-        	<sysproperty key="proxyUsername" value="${amazon.proxyUsername}"/>
-        	<sysproperty key="proxyPassword" value="${amazon.proxyPassword}"/>
-        	<sysproperty key="proxyHost" value="${amazon.proxyHost}"/>
-        	<sysproperty key="proxyPort" value="${amazon.proxyPort}"/>
-        	
+            <sysproperty key="accessKey" value="${amazon.accessKey}"/>
+
+
+            <sysproperty key="proxyUsername" value="${amazon.proxyUsername}"/>
+            <sysproperty key="proxyPassword" value="${amazon.proxyPassword}"/>
+            <sysproperty key="proxyHost" value="${amazon.proxyHost}"/>
+            <sysproperty key="proxyPort" value="${amazon.proxyPort}"/>
+
             <batchtest fork="yes"
                        todir="./target/">
                 <fileset dir="./test">
@@ -98,6 +100,9 @@
             </fileset>
             <report format="frames" todir="./target/reports/html"/>
         </junitreport>
+
+
+        <fail if="tests.failures" message="There were JUnit failures"/>
 
     </target>
 

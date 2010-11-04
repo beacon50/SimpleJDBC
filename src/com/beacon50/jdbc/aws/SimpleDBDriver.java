@@ -29,7 +29,7 @@ public class SimpleDBDriver implements Driver {
 			}
 			//assume for now that if there is any proxy 
 			//information, then do it all...
-			if (info.getProperty("proxyHost") != null) {
+			if (info.getProperty("proxyHost") != null && (!System.getProperty("proxyHost").equals(""))) {
 				return new SimpleDBConnection( info.getProperty("accessKey"),
 						info.getProperty("secretKey"), new SimpleDBProxy(info));
 			} else {

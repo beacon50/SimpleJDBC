@@ -73,7 +73,7 @@ public class SimpleDBStatement extends AbstractStatement {
             sql = sql.replaceAll(domain, SimpleDBUtils.quoteName(domain));
             SelectRequest selectRequest = new SelectRequest(sql);
             List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();
-            return new SimpleDBResultSet(items);
+            return new SimpleDBResultSet(this.connection, items, domain);
         } catch (Exception e) {
             throw new SQLException("exception caught in executing query");
         }

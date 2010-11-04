@@ -23,6 +23,6 @@ public class SimpleDBProxy {
 	}
 
 	public int getPort() {
-		return Integer.parseInt(props.getProperty("proxyPort", ""));
+		return Integer.parseInt(props.getProperty("proxyPort", "80"));
 	}
 }

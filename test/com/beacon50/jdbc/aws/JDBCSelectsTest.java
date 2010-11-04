@@ -1,8 +1,11 @@
 package com.beacon50.jdbc.aws;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.amazonaws.services.simpledb.AmazonSimpleDB;
+import com.amazonaws.services.simpledb.model.*;
+import com.beacon50.jdbc.aws.util.SimpleJDBCTestHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,18 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.amazonaws.services.simpledb.AmazonSimpleDB;
-import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
-import com.amazonaws.services.simpledb.model.CreateDomainRequest;
-import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
-import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
-import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
-import com.amazonaws.services.simpledb.model.ReplaceableItem;
-import com.beacon50.jdbc.aws.util.SimpleJDBCTestHelper;
+import static org.junit.Assert.*;
 
 /**
  * Test case inserts a new user object via
@@ -79,14 +71,13 @@ public class JDBCSelectsTest {
         assertTrue("age wasn't found for inserted object", wasFound);
     }
 
-    
 
     @Before
     public void initialize() throws Exception {
-    	AmazonSimpleDB sdb = SimpleJDBCTestHelper.getAmazonSimpleDBClient();
+        AmazonSimpleDB sdb = SimpleJDBCTestHelper.getAmazonSimpleDBClient();
         domain = "users";
         sdb.createDomain(new CreateDomainRequest(domain));
-
+        Thread.sleep(1000);
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
 
         data.add(new ReplaceableItem().withName("user_01").withAttributes(

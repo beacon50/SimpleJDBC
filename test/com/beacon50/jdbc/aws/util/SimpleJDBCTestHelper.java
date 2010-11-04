@@ -16,7 +16,7 @@ public class SimpleJDBCTestHelper {
 		prop.setProperty("secretKey", System.getProperty("secretKey"));
 		prop.setProperty("accessKey", System.getProperty("accessKey"));
 		
-		if (System.getProperty("proxyHost") != null) {			
+		if (System.getProperty("proxyHost") != null && (!System.getProperty("proxyHost").equals(""))) {			
 			prop.setProperty("proxyHost", System.getProperty("proxyHost", ""));
 			prop.setProperty("proxyPassword", System.getProperty("proxyPassword", ""));
 			prop.setProperty("proxyUsername", System.getProperty("proxyUsername", ""));
@@ -29,13 +29,13 @@ public class SimpleJDBCTestHelper {
 
 	public static AmazonSimpleDB getAmazonSimpleDBClient() throws Exception {
 
-		if (System.getProperty("proxyHost") != null) {
+		if (System.getProperty("proxyHost") != null && (!System.getProperty("proxyHost").equals(""))) {
 			
 			ClientConfiguration conf = new ClientConfiguration();
 			conf.setProxyHost(System.getProperty("proxyHost"));
 			conf.setProxyPassword(System.getProperty("proxyPassword", ""));
 			conf.setProxyUsername(System.getProperty("proxyUsername", ""));
-			conf.setProxyPort(Integer.parseInt(System.getProperty("proxyPort", "")));
+			conf.setProxyPort(Integer.parseInt(System.getProperty("proxyPort", "80")));
 			
 			return new AmazonSimpleDBClient(
 				new BasicAWSCredentials(System.getProperty("accessKey"), 

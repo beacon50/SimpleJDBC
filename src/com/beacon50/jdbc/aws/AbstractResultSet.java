@@ -160,18 +160,6 @@ public abstract class AbstractResultSet implements ResultSet {
         return null;
     }
 
-    public ResultSetMetaData getMetaData() throws SQLException {
-        return null;
-    }
-
-    public Object getObject(int i) throws SQLException {
-        return null;
-    }
-
-    public Object getObject(String s) throws SQLException {
-        return null;
-    }
-
     public int findColumn(String s) throws SQLException {
         return 0;
     }
