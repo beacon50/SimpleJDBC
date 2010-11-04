@@ -102,7 +102,7 @@
         </junitreport>
 
 
-        <fail if="tests.failures" message="There were JUnit failures"/>
+        <fail if="tests.failures" message="There were JUnit failures -- see the reports in ./target/reports"/>
 
     </target>
 

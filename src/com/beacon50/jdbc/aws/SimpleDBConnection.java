@@ -5,6 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -14,8 +15,7 @@ import java.sql.Statement;
 public class SimpleDBConnection extends AbstractConnection {
 
 	private AmazonSimpleDB sdb;
-	private String domain;
-
+	
 	private SimpleDBConnection() {
 	}
 
@@ -67,5 +67,9 @@ public class SimpleDBConnection extends AbstractConnection {
 	 */
 	public Statement createStatement() throws SQLException {
 		return new SimpleDBStatement(this);
+	}
+
+	public PreparedStatement prepareStatement(String sql) throws SQLException {		
+		return new SimpleDBPreparedStatement(sql, this);
 	}
 }

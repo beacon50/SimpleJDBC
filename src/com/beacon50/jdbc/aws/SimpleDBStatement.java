@@ -101,16 +101,11 @@ public class SimpleDBStatement extends AbstractStatement {
         Update update = (Update) this.parserManager.parse(new StringReader(sql));
         String domain = update.getTable().getName();
 
-        //System.out.println("domin is " + domain);
-
-        //find it first
         String qury = "SELECT * FROM " + SimpleDBUtils.quoteName(domain) +
                 " WHERE " + update.getWhere().toString();
 
-        //System.out.println(qury);
         SelectRequest selectRequest = new SelectRequest(qury);
-        List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();
-        //System.out.println("found " + items.size() + " items, proceeding to update");
+        List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();       
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
         for (Item item : items) {
 
@@ -124,16 +119,12 @@ public class SimpleDBStatement extends AbstractStatement {
                 SQLExpressionVisitor vistor = new SQLExpressionVisitor();
                 Expression exprs = expressions.get(count);
                 String value = vistor.getValue(exprs);
-                //System.out.println("attribute name is " + attributeName + " and value is " + value);
                 attributes.add(new ReplaceableAttribute().withName(attributeName).withValue(value).withReplace(true));
                 count++;
             }
-            //System.out.println("adding this data for name" + item.getName() + " and atts " + attributes);
             data.add(new ReplaceableItem().withName(item.getName()).withAttributes(attributes));
-
             returnval++;
         }
-        //batch them up and call it
         this.connection.getSimpleDB().batchPutAttributes(new BatchPutAttributesRequest(domain, data));
         return returnval;
     }

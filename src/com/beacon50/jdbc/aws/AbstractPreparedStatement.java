@@ -15,11 +15,7 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
     public ResultSet executeQuery() throws SQLException {
         return null;  
     }
-
-    public int executeUpdate() throws SQLException {
-        return 0;  
-    }
-
+  
     public void setNull(int i, int i1) throws SQLException {
         
     }
@@ -36,9 +32,7 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
         
     }
 
-    public void setInt(int i, int i1) throws SQLException {
-        
-    }
+    
 
     public void setLong(int i, long l) throws SQLException {
         
@@ -56,17 +50,12 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
         
     }
 
-    public void setString(int i, String s) throws SQLException {
-        
-    }
+    
 
     public void setBytes(int i, byte[] bytes) throws SQLException {
         
     }
-
-    public void setDate(int i, Date date) throws SQLException {
-        
-    }
+   
 
     public void setTime(int i, Time time) throws SQLException {
         

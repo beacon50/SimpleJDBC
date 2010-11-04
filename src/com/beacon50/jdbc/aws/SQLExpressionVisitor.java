@@ -38,7 +38,7 @@ public class SQLExpressionVisitor implements ExpressionVisitor {
     }
 
     public void visit(JdbcParameter jdbcParameter) {
-
+    	this.value = "?";
     }
 
     public void visit(DoubleValue doubleValue) {
@@ -86,7 +86,7 @@ public class SQLExpressionVisitor implements ExpressionVisitor {
     }
 
     public void visit(AndExpression andExpression) {
-
+    	System.out.println("and expression");    	
     }
 
     public void visit(OrExpression orExpression) {

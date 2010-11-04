@@ -8,11 +8,7 @@ import java.util.Properties;
  *
  */
 public abstract class AbstractConnection implements Connection {
-    
-    public PreparedStatement prepareStatement(String s) throws SQLException {
-        return null;  
-    }
-
+      
     public CallableStatement prepareCall(String s) throws SQLException {
         return null;  
     }

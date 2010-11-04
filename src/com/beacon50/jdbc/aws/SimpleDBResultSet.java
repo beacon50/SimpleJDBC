@@ -2,6 +2,7 @@ package com.beacon50.jdbc.aws;
 
 import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.util.SimpleDBUtils;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -48,7 +49,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
         Attribute attribute = attributes.get((index - 1));
-        return Integer.parseInt(attribute.getValue());
+        return SimpleDBUtils.decodeZeroPaddingInt(attribute.getValue());
     }
 
     private void checkPosition() throws SQLException {
@@ -64,7 +65,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
         List<Attribute> attributes = item.getAttributes();
         for (Attribute attribute : attributes) {
             if (attribute.getName().equals(label)) {
-                return Integer.valueOf(attribute.getValue());
+                return SimpleDBUtils.decodeZeroPaddingInt(attribute.getValue());
             }
         }
         throw new SQLException("attribute name " + label + " doesn't exist!");
