@@ -150,29 +150,38 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
     public void setDouble(int parameterIndex, double x) throws SQLException {
         this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding((float) x, 5));
     }
-
+    //todo consider refactoring into chain
     public void setObject(int parameterIndex, Object x) throws SQLException {
-    	System.out.println("setObject was called with " + x);
-        this.setString(parameterIndex, x.toString());
+        if (x instanceof Double) {
+            this.setDouble(parameterIndex, (Double) x);
+        } else if (x instanceof Float) {
+            this.setFloat(parameterIndex, (Float) x);
+        } else if (x instanceof Integer) {
+            this.setInt(parameterIndex, (Integer) x);
+        } else if (x instanceof Long) {
+            this.setLong(parameterIndex, (Long) x);
+        } else {
+            this.setString(parameterIndex, x.toString());
+        }
     }
 
-	public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
-		this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x.floatValue(), 5));
-	}
-	
-	public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-		this.setString(parameterIndex, Boolean.toString(x));
-	}
-	
-	public void setFloat(int parameterIndex, float x) throws SQLException {
-		this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x, 5));
-	}
+    public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
+        this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x.floatValue(), 5));
+    }
 
-	public void setLong(int parameterIndex, long x) throws SQLException {
-		this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x, 5));	
-	}
+    public void setBoolean(int parameterIndex, boolean x) throws SQLException {
+        this.setString(parameterIndex, Boolean.toString(x));
+    }
 
-	public void setURL(int parameterIndex, URL x) throws SQLException {
-		this.setString(parameterIndex, x.toString());
-	}
+    public void setFloat(int parameterIndex, float x) throws SQLException {
+        this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x, 5));
+    }
+
+    public void setLong(int parameterIndex, long x) throws SQLException {
+        this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x, 5));
+    }
+
+    public void setURL(int parameterIndex, URL x) throws SQLException {
+        this.setString(parameterIndex, x.toString());
+    }
 }
