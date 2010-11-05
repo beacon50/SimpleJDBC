@@ -42,9 +42,7 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
         
     }
 
-    public void setDouble(int i, double v) throws SQLException {
-        
-    }
+    
 
     public void setBigDecimal(int i, BigDecimal bigDecimal) throws SQLException {
         
@@ -85,10 +83,7 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
         
     }
 
-    public void setObject(int i, Object o) throws SQLException {
-        
-    }
-
+   
     public boolean execute() throws SQLException {
         return false;  
     }
