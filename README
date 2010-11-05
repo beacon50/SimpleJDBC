@@ -19,8 +19,8 @@ INSERT statements:
     that will create a domain named Races with an item having a unique id attribute (item name) and two attributes:
     Name and Distance with values
   * Numeric values are encoded 
-  * All inserted objects are given an id (if one isn't provided (i.e. id or ID)). Right now, this id isn't guaranteed to 
-    be unique.  
+  * All inserted objects are given an id (if one isn't provided (i.e. id or ID)).
+    Right now, this id isn't guaranteed to be unique.  
 
 DELETE statements
   * Deletes only support comparing values by equals (=); that is, the
