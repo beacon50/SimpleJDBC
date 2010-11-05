@@ -6,6 +6,7 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.update.Update;
 import org.apache.commons.lang.StringUtils;
@@ -43,8 +44,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             if (StringUtils.startsWithIgnoreCase(this.sql, "INSERT")) {
                 return handleInsert();
             } else if (StringUtils.startsWithIgnoreCase(this.sql, "DELETE")) {
-                // return handleDelete(sql);
-                return 0;
+                return handleDelete();                
             } else if (StringUtils.startsWithIgnoreCase(this.sql, "UPDATE")) {
                 return handleUpdate();
             } else {
@@ -56,7 +56,44 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
         }
     }
 
-    private int handleInsert() throws JSQLParserException {
+    private int handleDelete() throws JSQLParserException {		
+    	int returnval = 0;
+        Delete delete = (Delete) this.parserManager.parse(new StringReader(this.sql));
+        String domain = delete.getTable().getName();
+        Expression express = delete.getWhere();
+
+        String[] vals = express.toString().split("=");
+
+        DeleteAttributesRequest req = new DeleteAttributesRequest();
+        req.setDomainName(domain);
+        //if vals doesn't include id, then find one with an id
+        if (vals[0].equalsIgnoreCase("id")) {
+            String value = SimpleDBUtils.quoteValue(this.args.get(0));            
+            req.setItemName(value);
+            this.connection.getSimpleDB().deleteAttributes(req);
+            returnval = 1;
+        } else {
+            String qury = "SELECT * FROM " + SimpleDBUtils.quoteName(domain) +
+                    " WHERE " + express.toString();
+                        
+            int argsSize = this.args.size();
+            for (int x = 0; x < argsSize; x++) {
+                qury = qury.replaceFirst("\\?", SimpleDBUtils.quoteValue(this.args.get(x)));
+            }
+            
+            SelectRequest selectRequest = new SelectRequest(qury);
+            List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();
+
+            for (Item item : items) {
+                req.setItemName(item.getName());
+                this.connection.getSimpleDB().deleteAttributes(req);
+                returnval++;
+            }
+        }
+        return returnval;
+	}
+
+	private int handleInsert() throws JSQLParserException {
         Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
         String domain = insert.getTable().getName();
 
