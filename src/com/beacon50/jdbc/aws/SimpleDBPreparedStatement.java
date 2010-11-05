@@ -11,6 +11,8 @@ import net.sf.jsqlparser.statement.update.Update;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.StringReader;
+import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,9 +21,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * internal list is 1 based!
  *
- * @author gauaeg
  */
 public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 
@@ -57,7 +57,6 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
     }
 
     private int handleInsert() throws JSQLParserException {
-        //System.out.println("qry ->" + this.sql);
         Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
         String domain = insert.getTable().getName();
 
@@ -73,7 +72,6 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
         String id = null;
 
         for (Column column : columns) {
-
             if (column.getColumnName().equalsIgnoreCase("id")) {
                 id = this.args.get(count);
             } else {
@@ -85,9 +83,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
         if (id == null) {
             id = String.valueOf(Math.abs(new Random(new java.util.Date().getTime()).nextLong()));
         }
-
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
-
         data.add(new ReplaceableItem().withName(id).withAttributes(attributes));
         this.connection.getSimpleDB().batchPutAttributes(
                 new BatchPutAttributesRequest(domain, data));
@@ -108,14 +104,11 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             qury = qury.replaceFirst("\\?", SimpleDBUtils.quoteValue(this.args.get(x)));
         }
 
-        //System.out.println(qury);
-
         SelectRequest selectRequest = new SelectRequest(qury);
         List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
 
         for (Item item : items) {
-            // System.out.println("item found is " + item);
             List<Column> columns = (List<Column>) update.getColumns();
             List<Expression> expressions = (List<Expression>) update.getExpressions();
             List<ReplaceableAttribute> attributes = new ArrayList<ReplaceableAttribute>();
@@ -161,4 +154,24 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
     public void setObject(int parameterIndex, Object x) throws SQLException {
         this.setString(parameterIndex, x.toString());
     }
+
+	public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
+		this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x.floatValue(), 5));
+	}
+	
+	public void setBoolean(int parameterIndex, boolean x) throws SQLException {
+		this.setString(parameterIndex, Boolean.toString(x));
+	}
+	
+	public void setFloat(int parameterIndex, float x) throws SQLException {
+		this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x, 5));
+	}
+
+	public void setLong(int parameterIndex, long x) throws SQLException {
+		this.args.add(parameterIndex - 1, SimpleDBUtils.encodeZeroPadding(x, 5));	
+	}
+
+	public void setURL(int parameterIndex, URL x) throws SQLException {
+		this.setString(parameterIndex, x.toString());
+	}
 }

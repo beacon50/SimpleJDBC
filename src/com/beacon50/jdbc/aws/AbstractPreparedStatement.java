@@ -2,9 +2,24 @@ package com.beacon50.jdbc.aws;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.NClob;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Calendar;
 
 /**
@@ -19,11 +34,7 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
     public void setNull(int i, int i1) throws SQLException {
         
     }
-
-    public void setBoolean(int i, boolean b) throws SQLException {
-        
-    }
-
+    
     public void setByte(int i, byte b) throws SQLException {
         
     }
@@ -32,29 +43,10 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
         
     }
 
-    
-
-    public void setLong(int i, long l) throws SQLException {
-        
-    }
-
-    public void setFloat(int i, float v) throws SQLException {
-        
-    }
-
-    
-
-    public void setBigDecimal(int i, BigDecimal bigDecimal) throws SQLException {
-        
-    }
-
-    
-
     public void setBytes(int i, byte[] bytes) throws SQLException {
         
     }
-   
-
+  
     public void setTime(int i, Time time) throws SQLException {
         
     }
@@ -129,10 +121,6 @@ public abstract class AbstractPreparedStatement implements PreparedStatement{
     }
 
     public void setNull(int i, int i1, String s) throws SQLException {
-        
-    }
-
-    public void setURL(int i, URL url) throws SQLException {
         
     }
 
