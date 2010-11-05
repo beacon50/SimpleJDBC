@@ -152,6 +152,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
     }
 
     public void setObject(int parameterIndex, Object x) throws SQLException {
+    	System.out.println("setObject was called with " + x);
         this.setString(parameterIndex, x.toString());
     }
 
