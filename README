@@ -3,7 +3,7 @@ SimpleJDBC is a JDBC driver for Amazon's SimpleDB (http://aws.amazon.com/simpled
 
 What is SimpleDB? 
 
-SimpleDB is a cloud-based key/value store exposed via a web service interface. SimpleDB is a massively scalable, highly available datastore written in Erlang. SimpleDB is logically defined as domains containing items. SimpleDB also permits items to contain attributes. Think of a domain much like you would a table in the relational sense (or more appropriately, Bigtable's "kind" notion). Domains can have many items (which are similar to rows) and items can have many attributes (which are like columns in the relational world).
+SimpleDB is a cloud-based key/value store exposed via a web service interface. SimpleDB is a massively scalable, highly available datastore -- it's logically defined as domains containing items. SimpleDB also permits items to contain attributes. Think of a domain much like you would a table in the relational sense. Domains can have many items (which are similar to rows) and items can have many attributes (which are like columns in the relational world).
 
 Attributes are really just name/value pairs and the "pair" aspect isn't limited to one value. That is, an attribute name can have a collection (or list) of associated values. What's more, all data within SimpleDB is represented as a String, which is distinctly different from a standard RDBMS, which typically support myriad datatypes.
 
