@@ -37,5 +37,4 @@ SELECT statements
 
 
 TODO:
-  * add logging (Amazon's SDK uses log4j, so plug into that)
-  * make dates/timestamps work
+ see Google code issue list (http://code.google.com/p/simpledb-jdbc/issues/list)
