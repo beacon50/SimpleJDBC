@@ -1,6 +1,8 @@
 
 SimpleJDBC is a JDBC driver for Amazon's SimpleDB (http://aws.amazon.com/simpledb/). Thus, this driver makes it possible to use the myriad tools available that leverage standard JDBC interfaces to facilitate working with relational data (i.e. SimpleJDBC enables ETL tools to import or extract data from SimpleDB via existing logic coded for working with JDBC). All SimpleDB communication is via Amazon's SDK. 
 
+For detailed code examples, documentation, downloads, etc see the SimpleJDBC Google code site & wiki (http://code.google.com/p/simpledb-jdbc/); plus, join and/or search the mailing list (http://groups.google.com/group/simplejdbc). If you are looking for the source, you can find it here. 
+
 What is SimpleDB? 
 
 SimpleDB is a cloud-based key/value store exposed via a web service interface. SimpleDB is a massively scalable, highly available datastore -- it's logically defined as domains containing items. SimpleDB also permits items to contain attributes. Think of a domain much like you would a table in the relational sense. Domains can have many items (which are similar to rows) and items can have many attributes (which are like columns in the relational world).
