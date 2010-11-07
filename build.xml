@@ -113,4 +113,26 @@
         </jar>
     </target>
 
+
+    <target name="dist" depends="test" description="builds download archive">
+        <mkdir dir="./target/dist/lib"/>
+        <copy todir="./target/dist/lib">
+            <fileset dir="./lib">
+                <exclude name="junit-*.jar"/>
+                <exclude name="groovy-*.jar"/>
+                <exclude name="easyb-*.jar"/>
+            </fileset>
+        </copy>
+        <copy todir="./target/dist" file="./target/simplejdbc-${version}.jar"/>
+        <mkdir dir="./target/dist/examples"/>
+        <copy todir="./target/dist/examples">
+            <fileset dir="./test">
+            </fileset>
+        </copy>
+        <copy todir="./target/dist" file="./README"/>
+        <tar tarfile="./target/dist/simplejdbc-${version}.tar" basedir="./target/dist"/>
+        <gzip zipfile="./target/dist/simplejdbc-${version}.tar.gz" src="./target/dist/simplejdbc-${version}.tar"/>
+        <delete file="./target/dist/simplejdbc-${version}.tar"/>
+    </target>
+
 </project>
