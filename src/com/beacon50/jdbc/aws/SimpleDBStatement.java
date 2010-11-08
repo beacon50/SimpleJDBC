@@ -112,6 +112,7 @@ public class SimpleDBStatement extends AbstractStatement {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private int handleUpdate(String sql) throws JSQLParserException {
 		int returnval = 0;
 		Update update = (Update) this.parserManager.parse(new StringReader(sql));
@@ -194,6 +195,7 @@ public class SimpleDBStatement extends AbstractStatement {
 	 * @return at this point an int hardcoded to 1
 	 * @throws JSQLParserException
 	 */
+	@SuppressWarnings("unchecked")
 	private int handleInsert(String sql) throws JSQLParserException {
 		Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
 		String domain = insert.getTable().getName();
@@ -248,18 +250,4 @@ public class SimpleDBStatement extends AbstractStatement {
 		// System.out.println(data);
 		return 1;
 	}
-
-	// TODO handle DATES
-	private String handleNonStringEncoding(String expressionVal) {
-		if (StringUtils.isNumeric(expressionVal)) { // it's an int or long but
-													// just make a long
-			expressionVal = SimpleDBUtils.encodeZeroPadding(
-					Long.parseLong(expressionVal), 5);
-		} else { // must have a . in it
-			expressionVal = SimpleDBUtils.encodeZeroPadding(Float
-					.parseFloat(expressionVal), 5);
-		}
-		return expressionVal;
-	}
-
 }

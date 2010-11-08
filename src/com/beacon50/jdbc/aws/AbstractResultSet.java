@@ -54,7 +54,6 @@ public abstract class AbstractResultSet implements ResultSet {
         return 0;
     }
 
-    @SuppressWarnings("deprecation")
     public BigDecimal getBigDecimal(int i, int i1) throws SQLException {
         return null;
     }

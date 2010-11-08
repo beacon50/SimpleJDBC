@@ -2,7 +2,6 @@ package com.beacon50.jdbc.aws;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;

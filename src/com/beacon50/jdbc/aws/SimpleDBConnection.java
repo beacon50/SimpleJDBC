@@ -16,8 +16,8 @@ public class SimpleDBConnection extends AbstractConnection {
 
 	private AmazonSimpleDB sdb;
 	
-	private SimpleDBConnection() {
-	}
+	@SuppressWarnings("unused")
+	private SimpleDBConnection() {}
 
 	protected AmazonSimpleDB getSimpleDB() {
 		return this.sdb;

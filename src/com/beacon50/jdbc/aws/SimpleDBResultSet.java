@@ -17,7 +17,8 @@ public class SimpleDBResultSet extends AbstractResultSet {
     private List<Item> items;
     private ListIterator<Item> iter;
     private int currentPos = -1;
-    private Item currentItem;
+    @SuppressWarnings("unused")
+	private Item currentItem;
     private SimpleDBConnection connection;
     private String domain;
 

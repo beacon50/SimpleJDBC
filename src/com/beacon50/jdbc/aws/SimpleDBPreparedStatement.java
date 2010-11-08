@@ -93,6 +93,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
         return returnval;
 	}
 
+	@SuppressWarnings("unchecked")
 	private int handleInsert() throws JSQLParserException {
         Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
         String domain = insert.getTable().getName();
@@ -127,7 +128,8 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
         return 1;
     }
 
-    private int handleUpdate() throws JSQLParserException, SQLException {
+    @SuppressWarnings("unchecked")
+	private int handleUpdate() throws JSQLParserException, SQLException {
         int returnval = 0;
         Update update = (Update) this.parserManager.parse(new StringReader(this.sql));
         String domain = update.getTable().getName();
@@ -146,8 +148,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
 
         for (Item item : items) {
-            List<Column> columns = (List<Column>) update.getColumns();
-            List<Expression> expressions = (List<Expression>) update.getExpressions();
+            List<Column> columns = (List<Column>) update.getColumns();            
             List<ReplaceableAttribute> attributes = new ArrayList<ReplaceableAttribute>();
 
             int count = 0;
