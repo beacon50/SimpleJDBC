@@ -37,6 +37,7 @@ public class JDBCInsertsTest {
         String insert = "INSERT INTO users (name, age) VALUES ('Ann Smith', 33)";
         int val = st.executeUpdate(insert);
         assertEquals("val should be 1", 1, val);
+        assertEquals("val should be -1", -1, st.getUpdateCount());
         Thread.sleep(2000);
     }
 

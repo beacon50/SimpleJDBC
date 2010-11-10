@@ -59,10 +59,7 @@ public abstract class AbstractStatement implements Statement {
 
     }
 
-    public int getUpdateCount() throws SQLException {
-        return 0;
-    }
-
+   
     public boolean getMoreResults() throws SQLException {
         return false;
     }

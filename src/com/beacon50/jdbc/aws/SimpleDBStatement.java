@@ -32,6 +32,7 @@ public class SimpleDBStatement extends AbstractStatement {
 	private SimpleDBConnection connection;
 	private CCJSqlParserManager parserManager;
 	private ResultSet resultSet;
+    private int updateCnt = -1;
 
 	protected SimpleDBStatement(Connection conn) {
 		this.connection = (SimpleDBConnection) conn;
@@ -40,6 +41,7 @@ public class SimpleDBStatement extends AbstractStatement {
 
 	public boolean execute(String sql) throws SQLException {
 		try {
+            this.updateCnt = -1;
 			if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
 				return (handleInsert(sql) > 0) ? true : false;
 			} else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
@@ -97,7 +99,7 @@ public class SimpleDBStatement extends AbstractStatement {
 
 	public int executeUpdate(String sql) throws SQLException {
 		try {
-
+            this.updateCnt = -1;
 			if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
 				return handleInsert(sql);
 			} else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
@@ -146,6 +148,7 @@ public class SimpleDBStatement extends AbstractStatement {
 		}
 		this.connection.getSimpleDB().batchPutAttributes(
 				new BatchPutAttributesRequest(domain, data));
+        this.updateCnt = returnval;
 		return returnval;
 	}
 
@@ -190,7 +193,11 @@ public class SimpleDBStatement extends AbstractStatement {
 		return returnval;
 	}
 
-	/**
+    public int getUpdateCount() throws SQLException {
+        return this.updateCnt;
+    }
+
+    /**
 	 * @param sql
 	 * @return at this point an int hardcoded to 1
 	 * @throws JSQLParserException

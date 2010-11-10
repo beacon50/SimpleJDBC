@@ -39,6 +39,7 @@ public class JDBCUpdatesTest {
         String update = "UPDATE users SET age = 45 where name = 'Joe Smith'";
         boolean val = st.execute(update);
         assertEquals("val should be true", true, val);
+        assertEquals("val should be 1", 1, st.getUpdateCount());
         Thread.sleep(2000);
     }
 
@@ -50,6 +51,7 @@ public class JDBCUpdatesTest {
         String update = "UPDATE users SET age = 45 where name = 'Joe Smith'";
         int val = st.executeUpdate(update);
         assertEquals("val should be 1", 1, val);
+        assertEquals("val should be 1", 1, st.getUpdateCount());
         Thread.sleep(2000);
     }
 
