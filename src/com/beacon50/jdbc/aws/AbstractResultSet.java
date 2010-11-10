@@ -211,10 +211,6 @@ public abstract class AbstractResultSet implements ResultSet {
         return false;
     }
 
-    public int getRow() throws SQLException {
-        return 0;
-    }
-
     public boolean absolute(int i) throws SQLException {
         return false;
     }

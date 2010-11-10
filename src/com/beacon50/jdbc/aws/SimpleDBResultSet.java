@@ -82,6 +82,10 @@ public class SimpleDBResultSet extends AbstractResultSet {
         return this.getString(s);
     }
 
+    public int getRow() throws SQLException {
+        return (this.currentPos + 1);
+    }
+
     public String getString(int columnIndex) throws SQLException {
         checkPosition();
 

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test case inserts a new user object via
@@ -32,6 +33,8 @@ public class JDBCSelectsTest {
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(qry);
 
+        assertEquals("row count wasn't 0", 0, rs.getRow());
+
         boolean wasFound = false;
         while (rs.next()) {
             String age = rs.getString("age");
@@ -40,6 +43,7 @@ public class JDBCSelectsTest {
             int iage = rs.getInt("age");
             assertEquals("age wasn't 34!", 34, iage);
 
+            assertEquals("row count wasn't 1", 1, rs.getRow());
             wasFound = true;
         }
         assertTrue("age wasn't found for inserted object", wasFound);
