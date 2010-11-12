@@ -41,7 +41,7 @@ public class SimpleDBStatement extends AbstractStatement {
 	private SimpleDBConnection connection;
 	private CCJSqlParserManager parserManager;
 	private ResultSet resultSet;
-    private int updateCnt = -1;
+	private int updateCnt = -1;
 
 	protected SimpleDBStatement(Connection conn) {
 		this.connection = (SimpleDBConnection) conn;
@@ -50,7 +50,7 @@ public class SimpleDBStatement extends AbstractStatement {
 
 	public boolean execute(String sql) throws SQLException {
 		try {
-            this.updateCnt = -1;
+			this.updateCnt = -1;
 			if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
 				return (handleInsert(sql) > 0) ? true : false;
 			} else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
@@ -82,10 +82,12 @@ public class SimpleDBStatement extends AbstractStatement {
 				return this.handleSelectCount(sql);
 			} else {
 				Select select = (Select) this.parserManager.parse(new StringReader(sql));
-				String domain = ((PlainSelect) select.getSelectBody()).getFromItem().toString();
+				String domain = ((PlainSelect) select.getSelectBody()).getFromItem()
+						.toString();
 				sql = sql.replaceAll(domain, SimpleDBUtils.quoteName(domain));
 				SelectRequest selectRequest = new SelectRequest(sql);
-				List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();
+				List<Item> items = this.connection.getSimpleDB().select(selectRequest)
+						.getItems();
 				return new SimpleDBResultSet(this.connection, items, domain);
 			}
 		} catch (Exception e) {
@@ -95,20 +97,18 @@ public class SimpleDBStatement extends AbstractStatement {
 
 	private ResultSet handleSelectCount(final String sql) throws JSQLParserException {
 		final Select select = (Select) this.parserManager.parse(new StringReader(sql));
-		final String domain = ((PlainSelect) select.getSelectBody()).getFromItem().toString();
+		final String domain = ((PlainSelect) select.getSelectBody()).getFromItem()
+				.toString();
 		final int count = connection.getSimpleDB().domainMetadata(
 				new DomainMetadataRequest(domain)).getItemCount();
-		return new SimpleDBResultSet(this.connection, 
-				new ArrayList<Item>(Collections.nCopies(1, 
-					new Item("", new ArrayList<Attribute>(
-						 Collections.nCopies(1, 
-							new Attribute("count", Integer.toString(count))))))), 
-				domain);
+		return new SimpleDBResultSet(this.connection, new ArrayList<Item>(Collections
+				.nCopies(1, new Item("", new ArrayList<Attribute>(Collections.nCopies(1,
+						new Attribute("count", Integer.toString(count))))))), domain);
 	}
 
 	public int executeUpdate(String sql) throws SQLException {
 		try {
-            this.updateCnt = -1;
+			this.updateCnt = -1;
 			if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
 				return handleInsert(sql);
 			} else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
@@ -147,17 +147,15 @@ public class SimpleDBStatement extends AbstractStatement {
 				SQLExpressionVisitor vistor = new SQLExpressionVisitor();
 				Expression exprs = expressions.get(count);
 				String value = vistor.getValue(exprs);
-				attributes.add(new ReplaceableAttribute().withName(attributeName)
-						.withValue(value).withReplace(true));
+				attributes.add(getReplaceableAttribute(attributeName, value, true));
 				count++;
 			}
-			data.add(new ReplaceableItem().withName(item.getName()).withAttributes(
-					attributes));
+			data.add(getReplaceableItem(attributes, item.getName()));
 			returnval++;
 		}
 		this.connection.getSimpleDB().batchPutAttributes(
 				new BatchPutAttributesRequest(domain, data));
-        this.updateCnt = returnval;
+		this.updateCnt = returnval;
 		return returnval;
 	}
 
@@ -202,11 +200,11 @@ public class SimpleDBStatement extends AbstractStatement {
 		return returnval;
 	}
 
-    public int getUpdateCount() throws SQLException {
-        return this.updateCnt;
-    }
+	public int getUpdateCount() throws SQLException {
+		return this.updateCnt;
+	}
 
-    /**
+	/**
 	 * @param sql
 	 * @return at this point an int hardcoded to 1
 	 * @throws JSQLParserException
@@ -233,23 +231,12 @@ public class SimpleDBStatement extends AbstractStatement {
 
 			SQLExpressionVisitor vistor = new SQLExpressionVisitor();
 			String expressionVal = vistor.getValue((Expression) list.get(count));
-			// System.out.println("value is " + expressionVal);
-
-			// String expressionVal = list.get(count).toString();
-			// if (new
-			// Character(expressionVal.charAt(0)).toString().equals("'")) {
-			// //character is a String
-			// expressionVal = expressionVal.substring(1,
-			// (expressionVal.length() - 1));
-			// } else { //expression is some number or date?
-			// expressionVal = handleNonStringEncoding(expressionVal);
-			// }
 
 			if (column.getColumnName().equalsIgnoreCase("id")) {
 				id = expressionVal;
 			} else {
-				attributes.add(new ReplaceableAttribute()
-						.withName(column.getColumnName()).withValue(expressionVal));
+				attributes.add(getReplaceableAttribute(column.getColumnName(),
+						expressionVal, false));
 			}
 			count++;
 		}
@@ -260,10 +247,32 @@ public class SimpleDBStatement extends AbstractStatement {
 
 		List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
 
-		data.add(new ReplaceableItem().withName(id).withAttributes(attributes));
+		data.add(getReplaceableItem(attributes, id));
 		this.connection.getSimpleDB().batchPutAttributes(
 				new BatchPutAttributesRequest(domain, data));
-		// System.out.println(data);
 		return 1;
+	}
+
+	/**
+	 * 
+	 * @param attributes
+	 * @param id
+	 * @return ReplaceableItem
+	 */
+	protected ReplaceableItem getReplaceableItem(List<ReplaceableAttribute> attributes,
+			String id) {
+		return new ReplaceableItem().withName(id).withAttributes(attributes);
+	}
+
+	/**
+	 * 
+	 * @param column
+	 * @param expressionVal
+	 * @return ReplaceableAttribute
+	 */
+	protected ReplaceableAttribute getReplaceableAttribute(String name,
+			String expressionVal, boolean replace) {
+		return new ReplaceableAttribute().withName(name).withValue(expressionVal)
+				.withReplace(replace);
 	}
 }

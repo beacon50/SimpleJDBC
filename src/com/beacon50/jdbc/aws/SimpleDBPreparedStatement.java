@@ -121,8 +121,11 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             if (column.getColumnName().equalsIgnoreCase("id")) {
                 id = this.args.get(count);
             } else {
-                attributes.add(new ReplaceableAttribute().withName(column.getColumnName())
-                        .withValue(this.args.get(count)));
+                attributes.add(/*new ReplaceableAttribute().withName(column.getColumnName())
+                        .withValue(this.args.get(count))*/
+                		this.getReplaceableAttribute(column.getColumnName(), 
+                				this.args.get(count), false)
+                );
             }
             count++;
         }
@@ -130,7 +133,9 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             id = UUID.randomUUID().toString();
         }
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
-        data.add(new ReplaceableItem().withName(id).withAttributes(attributes));
+        data.add(/*new ReplaceableItem().withName(id).withAttributes(attributes)*/
+        		this.getReplaceableItem(attributes, id)
+        );
         this.connection.getSimpleDB().batchPutAttributes(
                 new BatchPutAttributesRequest(domain, data));
         return 1;
@@ -166,12 +171,14 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
                 // attributeName);
                 String replaceValue = this.args.get(x);
                 // System.out.println("replace value is  " + replaceValue);
-                attributes.add(new ReplaceableAttribute().withName(attributeName)
-                        .withValue(replaceValue).withReplace(true));
+                attributes.add(/*new ReplaceableAttribute().withName(attributeName)
+                        .withValue(replaceValue).withReplace(true)*/
+                		this.getReplaceableAttribute(attributeName, replaceValue, true));
                 count++;
             }
-            data.add(new ReplaceableItem().withName(item.getName()).withAttributes(
-                    attributes));
+            data.add(/*new ReplaceableItem().withName(item.getName()).withAttributes(
+                    attributes)*/
+            		this.getReplaceableItem(attributes, item.getName()));
             returnval++;
         }
 
@@ -230,4 +237,27 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
     public void setURL(int parameterIndex, URL x) throws SQLException {
         this.setString(parameterIndex, x.toString());
     }
+    
+    /**
+	 * 
+	 * @param attributes
+	 * @param id
+	 * @return ReplaceableItem
+	 */
+	protected ReplaceableItem getReplaceableItem(List<ReplaceableAttribute> attributes,
+			String id) {
+		return new ReplaceableItem().withName(id).withAttributes(attributes);
+	}
+
+	/**
+	 * 
+	 * @param column
+	 * @param expressionVal
+	 * @return ReplaceableAttribute
+	 */
+	protected ReplaceableAttribute getReplaceableAttribute(String name,
+			String expressionVal, boolean replace) {
+		return new ReplaceableAttribute().withName(name).withValue(expressionVal)
+				.withReplace(replace);
+	}
 }
