@@ -2,7 +2,7 @@
 <project name="simplejDBc" default="compile" basedir=".">
 
     <property file="local.properties"/>
-    <property name="version" value="0.1"/>
+    <property name="version" value="0.2"/>
 
 
     <path id="classpath">
