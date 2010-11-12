@@ -1,7 +1,14 @@
 package com.beacon50.jdbc.aws;
 
-import com.amazonaws.services.simpledb.model.*;
-import com.amazonaws.services.simpledb.util.SimpleDBUtils;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -12,17 +19,19 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
+
 import org.apache.commons.lang.StringUtils;
 
-import java.io.StringReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import com.amazonaws.services.simpledb.model.Attribute;
+import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
+import com.amazonaws.services.simpledb.model.CreateDomainRequest;
+import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
+import com.amazonaws.services.simpledb.model.DomainMetadataRequest;
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
+import com.amazonaws.services.simpledb.model.ReplaceableItem;
+import com.amazonaws.services.simpledb.model.SelectRequest;
+import com.amazonaws.services.simpledb.util.SimpleDBUtils;
 
 /**
  *
@@ -246,7 +255,7 @@ public class SimpleDBStatement extends AbstractStatement {
 		}
 
 		if (id == null) {
-			id = String.valueOf(Math.abs(new Random(new Date().getTime()).nextLong()));
+			id = UUID.randomUUID().toString();
 		}
 
 		List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();

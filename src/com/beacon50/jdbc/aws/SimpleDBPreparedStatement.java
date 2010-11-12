@@ -1,16 +1,5 @@
 package com.beacon50.jdbc.aws;
 
-import com.amazonaws.services.simpledb.model.*;
-import com.amazonaws.services.simpledb.util.SimpleDBUtils;
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.delete.Delete;
-import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.update.Update;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -19,7 +8,26 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
+
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.update.Update;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
+import com.amazonaws.services.simpledb.model.CreateDomainRequest;
+import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
+import com.amazonaws.services.simpledb.model.ReplaceableItem;
+import com.amazonaws.services.simpledb.model.SelectRequest;
+import com.amazonaws.services.simpledb.util.SimpleDBUtils;
 
 /**
  *
@@ -119,7 +127,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             count++;
         }
         if (id == null) {
-            id = String.valueOf(Math.abs(new Random(new java.util.Date().getTime()).nextLong()));
+            id = UUID.randomUUID().toString();
         }
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
         data.add(new ReplaceableItem().withName(id).withAttributes(attributes));
