@@ -14,8 +14,10 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
@@ -82,8 +84,7 @@ public class SimpleDBStatement extends AbstractStatement {
 				return this.handleSelectCount(sql);
 			} else {
 				Select select = (Select) this.parserManager.parse(new StringReader(sql));
-				String domain = ((PlainSelect) select.getSelectBody()).getFromItem()
-						.toString();
+				String domain = this.getTableName(((PlainSelect) select.getSelectBody()).getFromItem());
 				sql = sql.replaceAll(domain, SimpleDBUtils.quoteName(domain));
 				SelectRequest selectRequest = new SelectRequest(sql);
 				List<Item> items = this.connection.getSimpleDB().select(selectRequest)
@@ -97,8 +98,7 @@ public class SimpleDBStatement extends AbstractStatement {
 
 	private ResultSet handleSelectCount(final String sql) throws JSQLParserException {
 		final Select select = (Select) this.parserManager.parse(new StringReader(sql));
-		final String domain = ((PlainSelect) select.getSelectBody()).getFromItem()
-				.toString();
+		String domain = this.getTableName(((PlainSelect) select.getSelectBody()).getFromItem());
 		final int count = connection.getSimpleDB().domainMetadata(
 				new DomainMetadataRequest(domain)).getItemCount();
 		return new SimpleDBResultSet(this.connection, new ArrayList<Item>(Collections
@@ -127,7 +127,7 @@ public class SimpleDBStatement extends AbstractStatement {
 	private int handleUpdate(String sql) throws JSQLParserException {
 		int returnval = 0;
 		Update update = (Update) this.parserManager.parse(new StringReader(sql));
-		String domain = update.getTable().getName();
+		String domain = this.getTableName(update.getTable());
 
 		String qury = "SELECT * FROM " + SimpleDBUtils.quoteName(domain) + " WHERE "
 				+ update.getWhere().toString();
@@ -166,7 +166,7 @@ public class SimpleDBStatement extends AbstractStatement {
 	private int handleDelete(String sql) throws JSQLParserException {
 		int returnval = 0;
 		Delete delete = (Delete) this.parserManager.parse(new StringReader(sql));
-		String domain = delete.getTable().getName();
+		String domain = this.getTableName(delete.getTable());
 		Expression express = delete.getWhere();
 
 		String[] vals = express.toString().split("=");
@@ -212,8 +212,7 @@ public class SimpleDBStatement extends AbstractStatement {
 	@SuppressWarnings("unchecked")
 	private int handleInsert(String sql) throws JSQLParserException {
 		Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
-		String domain = insert.getTable().getName();
-
+		String domain = this.getTableName(insert.getTable());
 		try {
 			this.connection.getSimpleDB().createDomain(new CreateDomainRequest(domain));
 		} catch (Exception e) {
@@ -253,6 +252,13 @@ public class SimpleDBStatement extends AbstractStatement {
 		return 1;
 	}
 
+	protected String getTableName(Table tbl){
+		return tbl.getName();
+	}
+	
+	protected String getTableName(FromItem item){
+		return item.toString();
+	}
 	/**
 	 * 
 	 * @param attributes
