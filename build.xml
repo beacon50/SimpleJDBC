@@ -2,7 +2,7 @@
 <project name="simplejDBc" default="compile" basedir=".">
 
     <property file="local.properties"/>
-    <property name="version" value="0.2"/>
+    <property name="version" value="0.3"/>
 
 
     <path id="classpath">
@@ -111,6 +111,11 @@
         <jar basedir="target/classes" jarfile="target/simplejdbc-${version}.jar">
             <metainf dir="conf/META-INF" includes="**"/>
         </jar>
+    </target>
+
+    <target name="jar.ext" depends="compile" description="creates a jar file with no meta data">
+        <copy file="./log4j.properties" todir="target/classes"/>
+        <jar basedir="target/classes" jarfile="target/simplejdbc-${version}-ext.jar"/>
     </target>
 
 
