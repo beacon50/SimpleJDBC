@@ -1,14 +1,7 @@
 package com.beacon50.jdbc.aws;
 
-import java.io.StringReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
+import com.amazonaws.services.simpledb.model.*;
+import com.amazonaws.services.simpledb.util.SimpleDBUtils;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -21,264 +14,279 @@ import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
-
 import org.apache.commons.lang.StringUtils;
 
-import com.amazonaws.services.simpledb.model.Attribute;
-import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
-import com.amazonaws.services.simpledb.model.CreateDomainRequest;
-import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
-import com.amazonaws.services.simpledb.model.DomainMetadataRequest;
-import com.amazonaws.services.simpledb.model.Item;
-import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
-import com.amazonaws.services.simpledb.model.ReplaceableItem;
-import com.amazonaws.services.simpledb.model.SelectRequest;
-import com.amazonaws.services.simpledb.util.SimpleDBUtils;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 /**
  *
  */
 public class SimpleDBStatement extends AbstractStatement {
 
-	private SimpleDBConnection connection;
-	private CCJSqlParserManager parserManager;
-	private ResultSet resultSet;
-	private int updateCnt = -1;
+    private SimpleDBConnection connection;
+    private CCJSqlParserManager parserManager;
+    private ResultSet resultSet;
+    private int updateCnt = -1;
 
-	protected SimpleDBStatement(Connection conn) {
-		this.connection = (SimpleDBConnection) conn;
-		this.parserManager = new CCJSqlParserManager();
-	}
+    protected SimpleDBStatement(Connection conn) {
+        this.connection = (SimpleDBConnection) conn;
+        this.parserManager = new CCJSqlParserManager();
+    }
 
-	public boolean execute(String sql) throws SQLException {
-		try {
-			this.updateCnt = -1;
-			if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
-				return (handleInsert(sql) > 0) ? true : false;
-			} else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
-				return (handleDelete(sql) > 0) ? true : false;
-			} else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
-				return (handleUpdate(sql) > 0) ? true : false;
-			} else if (StringUtils.startsWithIgnoreCase(sql, "SELECT")) {
-				this.resultSet = this.executeQuery(sql);
-				return (this.resultSet != null) ? true : false;
-			} else {
-				return false;
-			}
-		} catch (JSQLParserException e1) {
-			throw new SQLException("SQL statement was malformed");
-		}
-	}
+    public boolean execute(String sql) throws SQLException {
+        try {
+            this.updateCnt = -1;
+            if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
+                return (handleInsert(sql) > 0) ? true : false;
+            } else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
+                return (handleDelete(sql) > 0) ? true : false;
+            } else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
+                return (handleUpdate(sql) > 0) ? true : false;
+            } else if (StringUtils.startsWithIgnoreCase(sql, "SELECT")) {
+                this.resultSet = this.executeQuery(sql);
+                return (this.resultSet != null) ? true : false;
+            } else {
+                return false;
+            }
+        } catch (JSQLParserException e1) {
+            throw new SQLException("SQL statement was malformed");
+        }
+    }
 
-	public ResultSet getResultSet() throws SQLException {
-		return this.resultSet;
-	}
+    public ResultSet getResultSet() throws SQLException {
+        return this.resultSet;
+    }
 
-	public Connection getConnection() throws SQLException {
-		return this.connection;
-	}
+    public Connection getConnection() throws SQLException {
+        return this.connection;
+    }
 
-	public ResultSet executeQuery(String sql) throws SQLException {
-		try {
-			if (sql.contains("count(*)")) {
-				return this.handleSelectCount(sql);
-			} else {
-				Select select = (Select) this.parserManager.parse(new StringReader(sql));
-				String domain = this.getTableName(((PlainSelect) select.getSelectBody()).getFromItem());
-				sql = sql.replaceAll(domain, SimpleDBUtils.quoteName(domain));
-				SelectRequest selectRequest = new SelectRequest(sql);
-				List<Item> items = this.connection.getSimpleDB().select(selectRequest)
-						.getItems();
-				return new SimpleDBResultSet(this.connection, items, domain);
-			}
-		} catch (Exception e) {
-			throw new SQLException("exception caught in executing query");
-		}
-	}
+    public ResultSet executeQuery(String sql) throws SQLException {
+        try {
+            if (sql.contains("count(*)")) {
+                return this.handleSelectCount(sql);
+            } else {
+                Select select = (Select) this.parserManager.parse(new StringReader(sql));
+                String domain = this.getReadTableName(((PlainSelect) select.getSelectBody()).getFromItem());
+                sql = sql.replaceAll(domain, SimpleDBUtils.quoteName(domain));
+                SelectRequest selectRequest = new SelectRequest(sql);
+                List<Item> items = this.connection.getSimpleDB().select(selectRequest)
+                        .getItems();
+                return new SimpleDBResultSet(this.connection, items, domain);
+            }
+        } catch (Exception e) {
+            throw new SQLException("exception caught in executing query");
+        }
+    }
 
-	private ResultSet handleSelectCount(final String sql) throws JSQLParserException {
-		final Select select = (Select) this.parserManager.parse(new StringReader(sql));
-		String domain = this.getTableName(((PlainSelect) select.getSelectBody()).getFromItem());
-		final int count = connection.getSimpleDB().domainMetadata(
-				new DomainMetadataRequest(domain)).getItemCount();
-		return new SimpleDBResultSet(this.connection, new ArrayList<Item>(Collections
-				.nCopies(1, new Item("", new ArrayList<Attribute>(Collections.nCopies(1,
-						new Attribute("count", Integer.toString(count))))))), domain);
-	}
+    private ResultSet handleSelectCount(final String sql) throws JSQLParserException {
+        final Select select = (Select) this.parserManager.parse(new StringReader(sql));
+        String domain = this.getReadTableName(((PlainSelect) select.getSelectBody()).getFromItem());
+        final int count = connection.getSimpleDB().domainMetadata(
+                new DomainMetadataRequest(domain)).getItemCount();
+        return new SimpleDBResultSet(this.connection, new ArrayList<Item>(Collections
+                .nCopies(1, new Item("", new ArrayList<Attribute>(Collections.nCopies(1,
+                new Attribute("count", Integer.toString(count))))))), domain);
+    }
 
-	public int executeUpdate(String sql) throws SQLException {
-		try {
-			this.updateCnt = -1;
-			if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
-				return handleInsert(sql);
-			} else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
-				return handleDelete(sql);
-			} else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
-				return handleUpdate(sql);
-			} else {
-				throw new SQLException("statement type " + sql + " not implemented yet");
-			}
-		} catch (JSQLParserException e1) {
-			throw new SQLException("SQL statement was malformed");
-		}
-	}
 
-	@SuppressWarnings("unchecked")
-	private int handleUpdate(String sql) throws JSQLParserException {
-		int returnval = 0;
-		Update update = (Update) this.parserManager.parse(new StringReader(sql));
-		String domain = this.getTableName(update.getTable());
+    public int executeUpdate(String sql) throws SQLException {
+        try {
+            this.updateCnt = -1;
+            if (StringUtils.startsWithIgnoreCase(sql, "INSERT")) {
+                return handleInsert(sql);
+            } else if (StringUtils.startsWithIgnoreCase(sql, "DELETE")) {
+                return handleDelete(sql);
+            } else if (StringUtils.startsWithIgnoreCase(sql, "UPDATE")) {
+                return handleUpdate(sql);
+            } else {
+                throw new SQLException("statement type " + sql + " not implemented yet");
+            }
+        } catch (JSQLParserException e1) {
+            throw new SQLException("SQL statement was malformed");
+        }
+    }
 
-		String qury = "SELECT * FROM " + SimpleDBUtils.quoteName(domain) + " WHERE "
-				+ update.getWhere().toString();
+    @SuppressWarnings("unchecked")
+    private int handleUpdate(String sql) throws JSQLParserException {
+        int returnval = 0;
+        Update update = (Update) this.parserManager.parse(new StringReader(sql));
+        String domain = this.getWriteTableName(update.getTable());
 
-		SelectRequest selectRequest = new SelectRequest(qury);
-		List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();
-		List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
-		for (Item item : items) {
+        String qury = "SELECT * FROM " + SimpleDBUtils.quoteName(domain) + " WHERE "
+                + update.getWhere().toString();
 
-			List<Column> columns = (List<Column>) update.getColumns();
-			List<Expression> expressions = (List<Expression>) update.getExpressions();
-			List<ReplaceableAttribute> attributes = new ArrayList<ReplaceableAttribute>();
+        SelectRequest selectRequest = new SelectRequest(qury);
+        List<Item> items = this.connection.getSimpleDB().select(selectRequest).getItems();
+        List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
+        for (Item item : items) {
 
-			int count = 0;
-			for (Column column : columns) {
-				String attributeName = column.getColumnName();
-				SQLExpressionVisitor vistor = new SQLExpressionVisitor();
-				Expression exprs = expressions.get(count);
-				String value = vistor.getValue(exprs);
-				attributes.add(getReplaceableAttribute(attributeName, value, true));
-				count++;
-			}
-			data.add(getReplaceableItem(attributes, item.getName()));
-			returnval++;
-		}
-		this.connection.getSimpleDB().batchPutAttributes(
-				new BatchPutAttributesRequest(domain, data));
-		this.updateCnt = returnval;
-		return returnval;
-	}
+            List<Column> columns = (List<Column>) update.getColumns();
+            List<Expression> expressions = (List<Expression>) update.getExpressions();
+            List<ReplaceableAttribute> attributes = new ArrayList<ReplaceableAttribute>();
 
-	/**
-	 * @param sql
-	 * @return
-	 */
-	private int handleDelete(String sql) throws JSQLParserException {
-		int returnval = 0;
-		Delete delete = (Delete) this.parserManager.parse(new StringReader(sql));
-		String domain = this.getTableName(delete.getTable());
-		Expression express = delete.getWhere();
+            int count = 0;
+            for (Column column : columns) {
+                String attributeName = column.getColumnName();
+                SQLExpressionVisitor vistor = new SQLExpressionVisitor();
+                Expression exprs = expressions.get(count);
+                String value = vistor.getValue(exprs);
+                attributes.add(getWriteReplaceableAttribute(attributeName, value, true));
+                count++;
+            }
+            data.add(getWriteReplaceableItem(attributes, item.getName()));
+            returnval++;
+        }
+        this.connection.getSimpleDB().batchPutAttributes(
+                new BatchPutAttributesRequest(domain, data));
+        this.updateCnt = returnval;
+        return returnval;
+    }
 
-		String[] vals = express.toString().split("=");
+    /**
+     * @param sql
+     * @return
+     */
+    private int handleDelete(String sql) throws JSQLParserException {
+        int returnval = 0;
+        Delete delete = (Delete) this.parserManager.parse(new StringReader(sql));
+        String domain = this.getWriteTableName(delete.getTable());
+        Expression express = delete.getWhere();
 
-		DeleteAttributesRequest req = new DeleteAttributesRequest();
-		req.setDomainName(domain);
-		// if vals doesn't include id, then find one with an id
-		if (vals[0].equalsIgnoreCase("id")) {
+        String[] vals = express.toString().split("=");
 
-			String value = vals[1];
-			if (new Character(value.charAt(0)).toString().equals("'")) {
-				value = value.substring(1, (value.length() - 1));
-			}
-			req.setItemName(value);
-			this.connection.getSimpleDB().deleteAttributes(req);
-			returnval = 1;
-		} else {
-			String qury = "SELECT * FROM " + SimpleDBUtils.quoteName(domain) + " WHERE "
-					+ express.toString();
-			// System.out.println(qury);
-			SelectRequest selectRequest = new SelectRequest(qury);
-			List<Item> items = this.connection.getSimpleDB().select(selectRequest)
-					.getItems();
+        DeleteAttributesRequest req = new DeleteAttributesRequest();
+        req.setDomainName(domain);
+        // if vals doesn't include id, then find one with an id
+        if (vals[0].equalsIgnoreCase("id")) {
 
-			for (Item item : items) {
-				req.setItemName(item.getName());
-				this.connection.getSimpleDB().deleteAttributes(req);
-				returnval++;
-			}
-		}
-		return returnval;
-	}
+            String value = vals[1];
+            if (new Character(value.charAt(0)).toString().equals("'")) {
+                value = value.substring(1, (value.length() - 1));
+            }
+            req.setItemName(value);
+            this.connection.getSimpleDB().deleteAttributes(req);
+            returnval = 1;
+        } else {
+            String qury = "SELECT * FROM " + SimpleDBUtils.quoteName(domain) + " WHERE "
+                    + express.toString();
+            // System.out.println(qury);
+            SelectRequest selectRequest = new SelectRequest(qury);
+            List<Item> items = this.connection.getSimpleDB().select(selectRequest)
+                    .getItems();
 
-	public int getUpdateCount() throws SQLException {
-		return this.updateCnt;
-	}
+            for (Item item : items) {
+                req.setItemName(item.getName());
+                this.connection.getSimpleDB().deleteAttributes(req);
+                returnval++;
+            }
+        }
+        return returnval;
+    }
 
-	/**
-	 * @param sql
-	 * @return at this point an int hardcoded to 1
-	 * @throws JSQLParserException
-	 */
-	@SuppressWarnings("unchecked")
-	private int handleInsert(String sql) throws JSQLParserException {
-		Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
-		String domain = this.getTableName(insert.getTable());
-		try {
-			this.connection.getSimpleDB().createDomain(new CreateDomainRequest(domain));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    public int getUpdateCount() throws SQLException {
+        return this.updateCnt;
+    }
 
-		List<Column> columns = (List<Column>) insert.getColumns();
-		List list = ((ExpressionList) insert.getItemsList()).getExpressions();
+    /**
+     * @param sql
+     * @return at this point an int hardcoded to 1
+     * @throws JSQLParserException
+     */
+    @SuppressWarnings("unchecked")
+    private int handleInsert(String sql) throws JSQLParserException {
+        Insert insert = (Insert) this.parserManager.parse(new StringReader(sql));
+        String domain = this.getWriteTableName(insert.getTable());
+        try {
+            this.connection.getSimpleDB().createDomain(new CreateDomainRequest(domain));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		List<ReplaceableAttribute> attributes = new ArrayList<ReplaceableAttribute>();
-		int count = 0;
-		String id = null;
+        List<Column> columns = (List<Column>) insert.getColumns();
+        List list = ((ExpressionList) insert.getItemsList()).getExpressions();
 
-		for (Column column : columns) {
+        List<ReplaceableAttribute> attributes = new ArrayList<ReplaceableAttribute>();
+        int count = 0;
+        String id = null;
 
-			SQLExpressionVisitor vistor = new SQLExpressionVisitor();
-			String expressionVal = vistor.getValue((Expression) list.get(count));
+        for (Column column : columns) {
 
-			if (column.getColumnName().equalsIgnoreCase("id")) {
-				id = expressionVal;
-			} else {
-				attributes.add(getReplaceableAttribute(column.getColumnName(),
-						expressionVal, false));
-			}
-			count++;
-		}
+            SQLExpressionVisitor vistor = new SQLExpressionVisitor();
+            String expressionVal = vistor.getValue((Expression) list.get(count));
 
-		if (id == null) {
-			id = UUID.randomUUID().toString();
-		}
+            if (column.getColumnName().equalsIgnoreCase("id")) {
+                id = expressionVal;
+            } else {
+                attributes.add(getWriteReplaceableAttribute(column.getColumnName(),
+                        expressionVal, false));
+            }
+            count++;
+        }
 
-		List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
 
-		data.add(getReplaceableItem(attributes, id));
-		this.connection.getSimpleDB().batchPutAttributes(
-				new BatchPutAttributesRequest(domain, data));
-		return 1;
-	}
+        List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
 
-	protected String getTableName(Table tbl){
-		return tbl.getName();
-	}
-	
-	protected String getTableName(FromItem item){
-		return item.toString();
-	}
-	/**
-	 * 
-	 * @param attributes
-	 * @param id
-	 * @return ReplaceableItem
-	 */
-	protected ReplaceableItem getReplaceableItem(List<ReplaceableAttribute> attributes,
-			String id) {
-		return new ReplaceableItem().withName(id).withAttributes(attributes);
-	}
+        data.add(getWriteReplaceableItem(attributes, id));
+        this.connection.getSimpleDB().batchPutAttributes(
+                new BatchPutAttributesRequest(domain, data));
+        return 1;
+    }
 
-	/**
-	 * 
-	 * @param column
-	 * @param expressionVal
-	 * @return ReplaceableAttribute
-	 */
-	protected ReplaceableAttribute getReplaceableAttribute(String name,
-			String expressionVal, boolean replace) {
-		return new ReplaceableAttribute().withName(name).withValue(expressionVal)
-				.withReplace(replace);
-	}
+    private String getWriteTableName(Table table) {
+        return table.getName();
+    }
+
+    private String getReadTableName(FromItem fromItem) {
+        return fromItem.toString();
+    }
+
+//    protected String getTableName(Table tbl){
+//		return tbl.getName();
+//	}
+//
+//	protected String getTableName(FromItem item){
+//		return item.toString();
+//	}
+
+    /**
+     * @param attributes
+     * @param id
+     * @return ReplaceableItem
+     */
+    protected ReplaceableItem getReadReplaceableItem(List<ReplaceableAttribute> attributes,
+                                                     String id) {
+        return this.getWriteReplaceableItem(attributes, id);
+    }
+
+    protected ReplaceableItem getWriteReplaceableItem(List<ReplaceableAttribute> attributes,
+                                                      String id) {
+        return new ReplaceableItem().withName(id).withAttributes(attributes);
+    }
+
+    /**
+     * @param column
+     * @param expressionVal
+     * @return ReplaceableAttribute
+     */
+    protected ReplaceableAttribute getWriteReplaceableAttribute(String name,
+                                                                String expressionVal, boolean replace) {
+        return this.getReadReplaceableAttribute(name, expressionVal, replace);
+    }
+
+    protected ReplaceableAttribute getReadReplaceableAttribute(String name,
+                                                               String expressionVal, boolean replace) {
+        return new ReplaceableAttribute().withName(name).withValue(expressionVal)
+                .withReplace(replace);
+    }
 }
