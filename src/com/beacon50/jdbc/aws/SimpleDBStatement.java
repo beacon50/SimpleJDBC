@@ -243,21 +243,14 @@ public class SimpleDBStatement extends AbstractStatement {
         return 1;
     }
 
-    private String getWriteTableName(Table table) {
+    protected String getWriteTableName(Table table) {
         return table.getName();
     }
 
-    private String getReadTableName(FromItem fromItem) {
+    protected String getReadTableName(FromItem fromItem) {
         return fromItem.toString();
     }
 
-//    protected String getTableName(Table tbl){
-//		return tbl.getName();
-//	}
-//
-//	protected String getTableName(FromItem item){
-//		return item.toString();
-//	}
 
     /**
      * @param attributes
