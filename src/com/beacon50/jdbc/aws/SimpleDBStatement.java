@@ -68,20 +68,29 @@ public class SimpleDBStatement extends AbstractStatement {
         return this.connection;
     }
 
+    /**
+     *  SELECT * FROM MY_DOMAIN
+     *
+     * @param sql
+     * @return
+     * @throws SQLException
+     */
     public ResultSet executeQuery(String sql) throws SQLException {
         try {
             if (sql.contains("count(*)")) {
                 return this.handleSelectCount(sql);
             } else {
                 Select select = (Select) this.parserManager.parse(new StringReader(sql));
+                String origDomain = ((PlainSelect) select.getSelectBody()).getFromItem().toString();
                 String domain = this.getReadTableName(((PlainSelect) select.getSelectBody()).getFromItem());
-                sql = sql.replaceAll(domain, SimpleDBUtils.quoteName(domain));
+                sql = sql.replaceAll(origDomain, SimpleDBUtils.quoteName(domain));
                 SelectRequest selectRequest = new SelectRequest(sql);
                 List<Item> items = this.connection.getSimpleDB().select(selectRequest)
                         .getItems();
                 return getSimpleDBResultSet(domain, items);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new SQLException("exception caught in executing query");
         }
     }
