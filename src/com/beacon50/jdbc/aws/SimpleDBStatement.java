@@ -79,11 +79,15 @@ public class SimpleDBStatement extends AbstractStatement {
                 SelectRequest selectRequest = new SelectRequest(sql);
                 List<Item> items = this.connection.getSimpleDB().select(selectRequest)
                         .getItems();
-                return new SimpleDBResultSet(this.connection, items, domain);
+                return getSimpleDBResultSet(domain, items);
             }
         } catch (Exception e) {
             throw new SQLException("exception caught in executing query");
         }
+    }
+
+    protected ResultSet getSimpleDBResultSet(String domain, List<Item> items) {
+        return new SimpleDBResultSet(this.connection, items, domain);
     }
 
     private ResultSet handleSelectCount(final String sql) throws JSQLParserException {
@@ -91,9 +95,9 @@ public class SimpleDBStatement extends AbstractStatement {
         String domain = this.getReadTableName(((PlainSelect) select.getSelectBody()).getFromItem());
         final int count = connection.getSimpleDB().domainMetadata(
                 new DomainMetadataRequest(domain)).getItemCount();
-        return new SimpleDBResultSet(this.connection, new ArrayList<Item>(Collections
+        return getSimpleDBResultSet(domain, new ArrayList<Item>(Collections
                 .nCopies(1, new Item("", new ArrayList<Attribute>(Collections.nCopies(1,
-                new Attribute("count", Integer.toString(count))))))), domain);
+                new Attribute("count", Integer.toString(count))))))));
     }
 
 
