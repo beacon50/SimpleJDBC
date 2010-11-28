@@ -50,7 +50,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
         Attribute attribute = attributes.get((index - 1));
-        return SimpleDBUtils.decodeZeroPaddingInt(attribute.getValue());
+        return SimpleDBUtils.decodeZeroPaddingInt(getAttributeValue(attribute));
     }
 
     private void checkPosition() throws SQLException {
@@ -65,8 +65,8 @@ public class SimpleDBResultSet extends AbstractResultSet {
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
         for (Attribute attribute : attributes) {
-            if (attribute.getName().equals(label)) {
-                return SimpleDBUtils.decodeZeroPaddingInt(attribute.getValue());
+            if (getAttributeName(attribute).equals(label)) {
+                return SimpleDBUtils.decodeZeroPaddingInt(getAttributeValue(attribute));
             }
         }
         throw new SQLException("attribute name " + label + " doesn't exist!");
@@ -92,7 +92,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
         Attribute attribute = attributes.get((columnIndex - 1));
-        return attribute.getValue();
+        return getAttributeValue(attribute);
     }
 
     public String getString(String columnLabel) throws SQLException {
@@ -101,11 +101,21 @@ public class SimpleDBResultSet extends AbstractResultSet {
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
         for (Attribute attribute : attributes) {
-            if (attribute.getName().equals(columnLabel)) {
-                return attribute.getValue();
+            if (getAttributeName(attribute).equals(columnLabel)) {
+                return getAttributeValue(attribute);
             }
         }
         throw new SQLException("attribute name " + columnLabel + " doesn't exist!");
+    }
+
+    
+    protected String getAttributeValue(Attribute attribute) {
+        return attribute.getValue();
+    }
+
+
+    protected String getAttributeName(Attribute attribute) {
+        return attribute.getName();
     }
 
 }
