@@ -25,4 +25,9 @@ public class SimpleDBProxy {
 	public int getPort() {
 		return Integer.parseInt(props.getProperty("proxyPort", "80"));
 	}
+	
+	public String toString(){
+		return "pssword: " + getPassword() + " username: " + getUsername() +
+			" host : " + getHost() + " port: " + getPort(); 
+	}
 }

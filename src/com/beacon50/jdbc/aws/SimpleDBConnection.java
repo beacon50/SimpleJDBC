@@ -9,11 +9,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.log4j.Logger;
+
 /**
  *
  */
 public class SimpleDBConnection extends AbstractConnection {
 
+	final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws");
+	
 	private AmazonSimpleDB sdb;
 	
 	@SuppressWarnings("unused")
@@ -43,10 +48,11 @@ public class SimpleDBConnection extends AbstractConnection {
 	 */
 	protected SimpleDBConnection(String accessId, String accessSecret,
 			SimpleDBProxy proxy) {
-
+		log.info("creating a connection with proxy information: " + proxy);
 		ClientConfiguration conf = getAWSConfiguration(proxy);
 		this.sdb = new AmazonSimpleDBClient(new BasicAWSCredentials(accessId,
 				accessSecret), conf);
+		log.info("done creating SDB connection, Client is init'ed -> " + this.sdb.toString());
 	}
 	/**
 	 * 
@@ -66,10 +72,23 @@ public class SimpleDBConnection extends AbstractConnection {
 	 * 
 	 */
 	public Statement createStatement() throws SQLException {
+		log.info("Creating a statement");
 		return new SimpleDBStatement(this);
 	}
 
-	public PreparedStatement prepareStatement(String sql) throws SQLException {		
+	public PreparedStatement prepareStatement(String sql) throws SQLException {
+		log.info("Creating a PreparedStatement with the following SQL: " + sql);
 		return new SimpleDBPreparedStatement(sql, this);
+	}
+	
+	public String toString(){
+		return ToStringBuilder.reflectionToString(this);
+	}
+
+	@Override
+	public Statement createStatement(int resultSetType, int resultSetConcurrency)
+			throws SQLException {
+		log.info("createStatement(int resultSetType, int resultSetConcurrency) was called.");
+		return new SimpleDBStatement(this);
 	}
 }
