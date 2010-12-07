@@ -25,11 +25,12 @@ public class SimpleDBResultSet extends AbstractResultSet {
     private SimpleDBConnection connection;
     private String domain;
     final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws.SimpleDBResultSet");
-
-    public ResultSetMetaData getMetaData() throws SQLException {
-        return new SimpleDBResultSetMetaData(this.connection, this.items, this.domain);
-    }
-
+    /**
+     * 
+     * @param connection
+     * @param items
+     * @param domain
+     */
     protected SimpleDBResultSet(SimpleDBConnection connection, List<Item> items, String domain) {
         this.connection = connection;
         this.items = items;
@@ -37,6 +38,10 @@ public class SimpleDBResultSet extends AbstractResultSet {
         this.domain = domain;
     }
 
+    public ResultSetMetaData getMetaData() throws SQLException {
+        return new SimpleDBResultSetMetaData(this.connection, this.items, this.domain);
+    }
+    
     public boolean next() throws SQLException {
         if (this.iter.hasNext()) {
             currentPos = this.iter.nextIndex();
@@ -128,4 +133,9 @@ public class SimpleDBResultSet extends AbstractResultSet {
     public String toString(){
     	return ToStringBuilder.reflectionToString(this);
     }
+
+	@Override
+	public void close() throws SQLException {
+		this.currentPos = -1;
+	}
 }	

@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractConnection implements Connection {
 
-	final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws");
+	final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws.AbstractConnection");
 
 	public CallableStatement prepareCall(String s) throws SQLException {
 		log.info("prepareCall(String s) called");

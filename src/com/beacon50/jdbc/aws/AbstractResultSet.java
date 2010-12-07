@@ -15,11 +15,7 @@ public abstract class AbstractResultSet implements ResultSet {
     public boolean next() throws SQLException {
         return false;
     }
-
-    public void close() throws SQLException {
-
-    }
-
+   
     public boolean wasNull() throws SQLException {
         return false;
     }
