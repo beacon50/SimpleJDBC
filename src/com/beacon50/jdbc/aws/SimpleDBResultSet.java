@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.log4j.Logger;
+
 /**
  *
  */
@@ -21,7 +24,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
 	private Item currentItem;
     private SimpleDBConnection connection;
     private String domain;
-
+    final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws.SimpleDBResultSet");
 
     public ResultSetMetaData getMetaData() throws SQLException {
         return new SimpleDBResultSetMetaData(this.connection, this.items, this.domain);
@@ -45,6 +48,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
     }
 
     public int getInt(int index) throws SQLException {
+    	log.info("getInt(int index) called with index " + index);
         checkPosition();
 
         Item item = items.get(currentPos);
@@ -60,7 +64,8 @@ public class SimpleDBResultSet extends AbstractResultSet {
     }
 
     public int getInt(String label) throws SQLException {
-        checkPosition();
+    	log.info("getInt(String label) called with label " + label);
+    	checkPosition();
 
         Item item = items.get(currentPos);
         List<Attribute> attributes = item.getAttributes();
@@ -87,6 +92,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
     }
 
     public String getString(int columnIndex) throws SQLException {
+    	log.info("getString(int columnIndex) called with index " + columnIndex);
         checkPosition();
 
         Item item = items.get(currentPos);
@@ -96,6 +102,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
     }
 
     public String getString(String columnLabel) throws SQLException {
+    	log.info("getString(String columnLabel) called with value " + columnLabel);
         checkPosition();
 
         Item item = items.get(currentPos);
@@ -118,4 +125,7 @@ public class SimpleDBResultSet extends AbstractResultSet {
         return attribute.getName();
     }
 
-}
+    public String toString(){
+    	return ToStringBuilder.reflectionToString(this);
+    }
+}	

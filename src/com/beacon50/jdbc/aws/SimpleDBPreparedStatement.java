@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,9 +17,12 @@ import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
@@ -33,12 +37,15 @@ import com.amazonaws.services.simpledb.util.SimpleDBUtils;
  *
  */
 public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
-
+	
+	final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws.SimpleDBPreparedStatement");
     private SimpleDBConnection connection;
     private CCJSqlParserManager parserManager;
     private String sql;
     private List<String> args;
-
+    private int updateCount = 0;
+    private ResultSet resultSet;
+    
     protected SimpleDBPreparedStatement(String sql, SimpleDBConnection conn) {
         this.sql = sql.trim();
         this.connection = conn;
@@ -48,13 +55,16 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 
     public int executeUpdate() throws SQLException {
         try {
-
+        	log.info("executeUpdate() called with sql: " + this.sql);
             if (StringUtils.startsWithIgnoreCase(this.sql, "INSERT")) {
                 return handleInsert();
             } else if (StringUtils.startsWithIgnoreCase(this.sql, "DELETE")) {
                 return handleDelete();                
             } else if (StringUtils.startsWithIgnoreCase(this.sql, "UPDATE")) {
                 return handleUpdate();
+            } else if (StringUtils.startsWithIgnoreCase(sql, "SELECT")) {
+                this.resultSet = this.executeQuery();
+                return (this.resultSet != null) ? 1 : 0;
             } else {
                 throw new SQLException("statement type " + this.sql
                         + " not implemented yet");
@@ -63,7 +73,37 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             throw new SQLException("SQL statement was malformed");
         }
     }
+    
+    public ResultSet executeQuery() throws SQLException {
+        try {
+        	log.info("select stmt made for PreparedStmt: " + this.sql);
+            Select select = (Select) this.parserManager.parse(new StringReader(sql));
+            
+            int qCount = StringUtils.countMatches(sql, "?");            
+            for(int x = 0; x < qCount; x++){
+            	String value = this.args.get(x);
+            	this.sql = this.sql.replaceFirst("\\?", SimpleDBUtils.quoteValue(value));
+            }
+            
+            log.info("after replacing ?'s, new sql is : " + this.sql);
+            
+            String origDomain = ((PlainSelect) select.getSelectBody()).getFromItem().toString();
+            String domain =((PlainSelect) select.getSelectBody()).getFromItem().toString();
+            sql = sql.replaceAll(origDomain, SimpleDBUtils.quoteName(domain));
+            SelectRequest selectRequest = new SelectRequest(sql);
+            List<Item> items = this.connection.getSimpleDB().select(selectRequest)
+                    .getItems();
+            return getSimpleDBResultSet(domain, items);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SQLException("exception caught in executing query");
+        }
+    }
 
+    protected ResultSet getSimpleDBResultSet(String domain, List<Item> items) {
+        return new SimpleDBResultSet(this.connection, items, domain);
+    }
+    
     private int handleDelete() throws JSQLParserException {		
     	int returnval = 0;
         Delete delete = (Delete) this.parserManager.parse(new StringReader(this.sql));
@@ -121,11 +161,8 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             if (column.getColumnName().equalsIgnoreCase("id")) {
                 id = this.args.get(count);
             } else {
-                attributes.add(/*new ReplaceableAttribute().withName(column.getColumnName())
-                        .withValue(this.args.get(count))*/
-                		this.getReplaceableAttribute(column.getColumnName(), 
-                				this.args.get(count), false)
-                );
+                attributes.add(this.getReplaceableAttribute(column.getColumnName(), 
+                				this.args.get(count), false));
             }
             count++;
         }
@@ -133,9 +170,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
             id = UUID.randomUUID().toString();
         }
         List<ReplaceableItem> data = new ArrayList<ReplaceableItem>();
-        data.add(/*new ReplaceableItem().withName(id).withAttributes(attributes)*/
-        		this.getReplaceableItem(attributes, id)
-        );
+        data.add(this.getReplaceableItem(attributes, id));
         this.connection.getSimpleDB().batchPutAttributes(
                 new BatchPutAttributesRequest(domain, data));
         return 1;
@@ -184,6 +219,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 
         this.connection.getSimpleDB().batchPutAttributes(
                 new BatchPutAttributesRequest(domain, data));
+        this.updateCount = returnval;
         return returnval;
 
     }
@@ -260,4 +296,33 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 		return new ReplaceableAttribute().withName(name).withValue(expressionVal)
 				.withReplace(replace);
 	}
+
+	@Override
+	public boolean execute() throws SQLException {
+		int val = this.executeUpdate();
+		if(val > 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	@Override
+	public int getUpdateCount() throws SQLException {
+		return this.updateCount;
+	}
+
+	@Override
+	public void close() throws SQLException {
+		this.updateCount = 0;
+		this.sql = null;
+		this.resultSet = null;
+	}
+
+	@Override
+	public ResultSet getResultSet() throws SQLException {
+		return this.resultSet;
+	}
+
+	
 }
