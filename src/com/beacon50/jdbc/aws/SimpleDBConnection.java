@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
  */
 public class SimpleDBConnection extends AbstractConnection {
 
-	final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws");
+	final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws.SimpleDBConnection");
 	
 	private AmazonSimpleDB sdb;
 	
@@ -85,7 +85,6 @@ public class SimpleDBConnection extends AbstractConnection {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
-	@Override
 	public Statement createStatement(int resultSetType, int resultSetConcurrency)
 			throws SQLException {
 		log.info("createStatement(int resultSetType, int resultSetConcurrency) was called.");

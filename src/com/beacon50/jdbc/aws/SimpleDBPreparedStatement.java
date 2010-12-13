@@ -297,7 +297,6 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 				.withReplace(replace);
 	}
 
-	@Override
 	public boolean execute() throws SQLException {
 		int val = this.executeUpdate();
 		if(val > 0){
@@ -307,19 +306,16 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 		}
 	}
 
-	@Override
 	public int getUpdateCount() throws SQLException {
 		return this.updateCount;
 	}
 
-	@Override
 	public void close() throws SQLException {
 		this.updateCount = 0;
 		this.sql = null;
 		this.resultSet = null;
 	}
 
-	@Override
 	public ResultSet getResultSet() throws SQLException {
 		return this.resultSet;
 	}

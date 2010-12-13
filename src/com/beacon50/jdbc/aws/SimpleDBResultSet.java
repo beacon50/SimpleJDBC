@@ -134,7 +134,6 @@ public class SimpleDBResultSet extends AbstractResultSet {
     	return ToStringBuilder.reflectionToString(this);
     }
 
-	@Override
 	public void close() throws SQLException {
 		this.currentPos = -1;
 	}

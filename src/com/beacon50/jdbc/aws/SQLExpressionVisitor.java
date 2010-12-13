@@ -16,7 +16,7 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 /**
  *
  */
-public class SQLExpressionVisitor implements ExpressionVisitor {
+public class SQLExpressionVisitor implements ExpressionVisitor, ItemsListVisitor {
 
     private String value;
 
@@ -38,7 +38,7 @@ public class SQLExpressionVisitor implements ExpressionVisitor {
     }
 
     public void visit(JdbcParameter jdbcParameter) {
-    	this.value = "?";
+        this.value = "?";
     }
 
     public void visit(DoubleValue doubleValue) {
@@ -46,6 +46,7 @@ public class SQLExpressionVisitor implements ExpressionVisitor {
     }
 
     public void visit(LongValue longValue) {
+        System.out.println("long value visited");
         this.value = SimpleDBUtils.encodeZeroPadding(longValue.getValue(), 5);
     }
 
@@ -86,8 +87,14 @@ public class SQLExpressionVisitor implements ExpressionVisitor {
     }
 
     public void visit(AndExpression andExpression) {
-    	System.out.println("and expression");    	
+        System.out.println("and expression");
+        this.visitBinaryExpression(andExpression);
     }
+
+    public void visitBinaryExpression(BinaryExpression binaryExpression) {
+		binaryExpression.getLeftExpression().accept(this);
+		binaryExpression.getRightExpression().accept(this);
+	}
 
     public void visit(OrExpression orExpression) {
 
@@ -98,7 +105,10 @@ public class SQLExpressionVisitor implements ExpressionVisitor {
     }
 
     public void visit(EqualsTo equalsTo) {
-
+        this.visitBinaryExpression(equalsTo);
+//        System.out.println("equals to! --> " + equalsTo.getStringExpression());
+//        System.out.println("equals to! left " + equalsTo.getLeftExpression().toString());
+//        System.out.println("equals to! right " + equalsTo.getRightExpression().toString());
     }
 
     public void visit(GreaterThan greaterThan) {
@@ -134,11 +144,15 @@ public class SQLExpressionVisitor implements ExpressionVisitor {
     }
 
     public void visit(Column column) {
-
+        System.out.println("colum is? " + column.getColumnName() + " and toString is " + column.toString());
     }
 
     public void visit(SubSelect subSelect) {
 
+    }
+
+    public void visit(ExpressionList expressionList) {
+        System.out.println("expression list visited");
     }
 
     public void visit(CaseExpression caseExpression) {
