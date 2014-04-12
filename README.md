@@ -14,7 +14,7 @@ Using SimpleJDBC is straightforward. All that is required is Java 5 and the jar 
 
 You load SimpleJDBC like you would any other JDBC driver.
 
-```
+```java
 Properties prop = new Properties();
 prop.setProperty("secretKey", ...);
 prop.setProperty("accessKey", ...);
@@ -32,7 +32,7 @@ SQL query in SimpleDB doesn't exist; consequently, there isn't any affect on per
 
 For example, SQL `INSERT`s are handled just like normal:
 
-```
+```java
 Statement st = conn.createStatement();
 String insert = "INSERT INTO users (name, age) VALUES ('Ann Smith', 33)";
 int val = st.executeUpdate(insert);
@@ -40,7 +40,7 @@ int val = st.executeUpdate(insert);
 
 or
 
-```
+```java
 PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users (name, age) VALUES (?, ?)");
 pstmt.setString(1, "Annie Smith");
 pstmt.setInt(2, 33);
@@ -53,7 +53,7 @@ SimpleJDBC attempts to encode and decode numeric values. Thus, in the two `INSER
 
 You can use the all too familiar JDBC ResultSet too:
 
-```
+```java
 String qry = "select * from users where name = 'Joe Smith'";
 Statement st = conn.createStatement();
 ResultSet rs = st.executeQuery(qry);
@@ -67,7 +67,7 @@ while (rs.next()) {
 SimpleJDBC supports the standard SQL `select count(*) from YOUR_DOMAIN`.
 The resultant `ResultSet` will contain a record named count, which you can then retrieve via a `getInt` call.
 
-```
+```java
 String qry = "select count(*) from users_tst";
 Statement st = conn.createStatement();
 ResultSet rs = st.executeQuery(qry);
