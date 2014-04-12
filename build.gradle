@@ -2,6 +2,28 @@ apply plugin: "java"
 apply plugin: "application"
 apply plugin: "idea"
 apply plugin: "groovy"
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+apply plugin: 'maven'
+
+group = 'com.beacon50'
+version = "1.0"
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
 
 repositories {
     mavenCentral()
@@ -21,4 +43,59 @@ dependencies {
     compile 'log4j:log4j:1.2.17'
     compile 'commons-lang:commons-lang:2.6'
     testCompile 'junit:junit:4.8.2'
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+            pom.project {
+                name 'SimpleJDBC'
+                packaging 'jar'
+                description "SimpleJDBC is a JDBC driver for Amazon's SimpleDB."
+                url 'https://github.com/beacon50/SimpleJDBC'
+                scm {
+                    url 'scm:git@github.com:beacon50/SimpleJDBC.git'
+                    connection 'scm:git@github.com:beacon50/SimpleJDBC.git'
+                    developerConnection 'scm:git@github.com:beacon50/SimpleJDBC.git'
+                }
+                licenses {
+                    license {
+                        name 'The MIT License (MIT)'
+                        url 'http://opensource.org/licenses/MIT'
+                        distribution 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'ajglover'
+                        name 'Andrew Glover'
+                    }
+                }
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.beacon50'
+            artifactId 'SimpleJDBC'
+            version '1.0.0'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+    }
 }
