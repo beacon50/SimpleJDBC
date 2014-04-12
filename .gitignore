@@ -6,3 +6,8 @@ bin/
 .classpath
 .project
 out/
+SimpleJDBC.i*
+gradle.properties
+.DS_Store
+.gradle/
+build/
