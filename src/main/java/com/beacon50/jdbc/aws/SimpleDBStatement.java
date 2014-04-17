@@ -74,8 +74,8 @@ public class SimpleDBStatement extends AbstractStatement {
     /**
      * SELECT * FROM MY_DOMAIN
      *
-     * @param sql
-     * @return
+     * @param sql to execute
+     * @return ResultSet
      * @throws SQLException
      */
     public ResultSet executeQuery(String sql) throws SQLException {
@@ -111,7 +111,6 @@ public class SimpleDBStatement extends AbstractStatement {
                 .nCopies(1, new Item("", new ArrayList<Attribute>(Collections.nCopies(1,
                 new Attribute("count", Integer.toString(count))))))));
     }
-
 
     public int executeUpdate(String sql) throws SQLException {
         try {
@@ -167,8 +166,8 @@ public class SimpleDBStatement extends AbstractStatement {
     }
 
     /**
-     * @param sql
-     * @return
+     * @param sql statement
+     * @return number of rows affected
      */
     private int handleDelete(String sql) throws JSQLParserException {
         log.info("handle delete incoming query: " + sql);
@@ -277,8 +276,8 @@ public class SimpleDBStatement extends AbstractStatement {
 
 
     /**
-     * @param attributes
-     * @param id
+     * @param attributes attributes to replace
+     * @param id Item id
      * @return ReplaceableItem
      */
     protected ReplaceableItem getReadReplaceableItem(List<ReplaceableAttribute> attributes,
@@ -292,8 +291,9 @@ public class SimpleDBStatement extends AbstractStatement {
     }
 
     /**
-     * @param column
-     * @param expressionVal
+     * @param name item name
+     * @param expressionVal value
+     * @param replace replace value?
      * @return ReplaceableAttribute
      */
     protected ReplaceableAttribute getWriteReplaceableAttribute(String name,

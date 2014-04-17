@@ -42,7 +42,6 @@ public class SimpleDBResultSetMetaData extends AbstractResultSetMetaData {
         return Types.VARCHAR; //for now
     }
 
-
     public int getColumnCount() throws SQLException {
         return connection.getSimpleDB().domainMetadata(
                 new DomainMetadataRequest(domain)).getAttributeNameCount();

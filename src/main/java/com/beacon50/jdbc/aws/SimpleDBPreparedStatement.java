@@ -276,8 +276,8 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
     
     /**
 	 * 
-	 * @param attributes
-	 * @param id
+	 * @param attributes Item attributes
+	 * @param id Id of item
 	 * @return ReplaceableItem
 	 */
 	protected ReplaceableItem getReplaceableItem(List<ReplaceableAttribute> attributes,
@@ -287,8 +287,9 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 
 	/**
 	 * 
-	 * @param column
-	 * @param expressionVal
+	 * @param name column name
+	 * @param expressionVal value
+     * @param replace replace the value?
 	 * @return ReplaceableAttribute
 	 */
 	protected ReplaceableAttribute getReplaceableAttribute(String name,
@@ -299,11 +300,7 @@ public class SimpleDBPreparedStatement extends AbstractPreparedStatement {
 
 	public boolean execute() throws SQLException {
 		int val = this.executeUpdate();
-		if(val > 0){
-			return true;
-		}else{
-			return false;
-		}
+		return (val > 0);
 	}
 
 	public int getUpdateCount() throws SQLException {

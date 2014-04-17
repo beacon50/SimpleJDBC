@@ -47,9 +47,7 @@ public class JDBCDeletesTest {
         Statement st = conn.createStatement();
         boolean val = st.execute(qry);
         assertEquals("should have removed one value", true, val);
-
     }
-
 
     @After
     public void deInitialize() throws Exception {
@@ -70,7 +68,6 @@ public class JDBCDeletesTest {
         sdb.deleteDomain(new DeleteDomainRequest(domain));
         Thread.sleep(2000);
     }
-
 
     @Before
     public void initialize() throws Exception {

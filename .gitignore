@@ -11,3 +11,4 @@ gradle.properties
 .DS_Store
 .gradle/
 build/
+.vagrant/

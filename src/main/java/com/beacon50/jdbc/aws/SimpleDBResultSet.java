@@ -27,9 +27,9 @@ public class SimpleDBResultSet extends AbstractResultSet {
     final private Logger log = Logger.getLogger("com.beacon50.jdbc.aws.SimpleDBResultSet");
     /**
      * 
-     * @param connection
-     * @param items
-     * @param domain
+     * @param connection connection to db
+     * @param items items to use in stmt
+     * @param domain table
      */
     protected SimpleDBResultSet(SimpleDBConnection connection, List<Item> items, String domain) {
         this.connection = connection;

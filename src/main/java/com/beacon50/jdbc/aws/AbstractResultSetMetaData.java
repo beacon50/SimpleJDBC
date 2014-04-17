@@ -59,8 +59,6 @@ public abstract class AbstractResultSetMetaData implements ResultSetMetaData {
         return null;
     }
 
-   
-
     public String getColumnTypeName(int i) throws SQLException {
         return null;
     }

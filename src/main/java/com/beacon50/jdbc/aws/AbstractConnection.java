@@ -90,8 +90,6 @@ public abstract class AbstractConnection implements Connection {
 		log.info(" clearWarnings() called");
 	}
 
-	
-
 	public PreparedStatement prepareStatement(String s, int i, int i1)
 			throws SQLException {
 		log.info("prepareStatement(String s, int i, int i1) called");
